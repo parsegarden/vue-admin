@@ -1,28 +1,29 @@
 <template>
   <div>
     <div class="tile is-ancestor">
-      <div class="tile is-parent">
+      <div class="tile is-parent is-vertical">
+        <article class="tile is-child box light">
+          <p class="title white">New to Parsegarden?</p>
+          <p class="content white">Sign up now to analyze and compare Twitter trends</p>
+          <p class="control">
+            <a class="button is-medium is-info" href="#">Sign up</a>
+          </p>
+        </article>
         <article class="tile is-child box">
-          <p class="title">One</p>
-          <p class="subtitle">Subtitle</p>
+          <p class="title">Track Trends</p>
+          <p class="content">Track any set of Twitter queries automatically</p>
+        </article>
+        <article class="tile is-child box">
+          <p class="title">Find Patterns</p>
+          <p class="content">Explore the common language and hashtags used, influential users, and most engaging tweets over various time ranges</p>
         </article>
       </div>
-      <div class="tile is-parent">
+
+      <div class="tile is-parent is-9">
         <article class="tile is-child box">
-          <p class="title">Two</p>
-          <p class="subtitle">Subtitle</p>
-        </article>
-      </div>
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Three</p>
-          <p class="subtitle">Subtitle</p>
-        </article>
-      </div>
-      <div class="tile is-parent">
-        <article class="tile is-child box">
-          <p class="title">Four</p>
-          <p class="subtitle">Subtitle</p>
+          <div class="content">
+            <time-graph :data="graphData"></time-graph>
+          </div>
         </article>
       </div>
     </div>
@@ -107,10 +108,15 @@
 
 <script>
 import Chart from 'vue-bulma-chartjs'
+import TimeGraph from 'components/TimeGraph'
+import testData from '../../../../testData'
+
+console.log('DATA', testData)
 
 export default {
   components: {
-    Chart
+    Chart,
+    TimeGraph
   },
 
   data () {
@@ -120,6 +126,9 @@ export default {
   },
 
   computed: {
+    graphData () {
+      return testData
+    },
     chartData () {
       return {
         labels: [
@@ -137,8 +146,9 @@ export default {
         }]
       }
     }
-  },
+  }
 
+  /*
   created () {
     setInterval(() => {
       // https://vuejs.org/guide/list.html#Mutation-Methods
@@ -148,8 +158,16 @@ export default {
       })
     }, 1024)
   }
+  */
 }
 </script>
 
 <style lang="scss" scoped>
+.white {
+  color: white;
+}
+
+.light {
+  background: #3B6BA2;
+}
 </style>
