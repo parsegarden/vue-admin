@@ -167,7 +167,7 @@ router.map({
 
 router.redirect({
   '/ui': '/ui/typography',
-  '*': '/dashboard'
+  '*': '/dashboard' // REDIRECT everything NOT /ui to /dashboard
 })
 
 router.start(App, 'app')

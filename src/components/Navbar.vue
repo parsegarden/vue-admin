@@ -1,7 +1,7 @@
 <template>
   <section class="hero is-bold app-navbar">
     <div class="hero-head">
-      <nav class="nav">
+      <nav class="nav dark">
         <div class="nav-left">
           <a class="nav-item is-hidden-tablet touchable sidebar-toggle" @click="toggleSidebar">
             <span class="icon">
@@ -11,13 +11,29 @@
         </div>
         <div class="nav-center">
           <a class="nav-item hero-brand touchable" href="#">
-            <img src="../assets/logo.svg" alt="Vue Admin Panel Framework">
+            <!--<img src="../assets/logo.svg" alt="Vue Admin Panel Framework">-->
             <div class="is-hidden-mobile">
-              <span class="vue">Vue</span><strong class="admin">Admin</strong>
+              <p class="title is-3"><span class="vue">Parse</span><strong class="admin">garden</strong></p>
             </div>
           </a>
         </div>
-        <div class="nav-right is-flex"></div>
+        <div class="nav-right is-flex">
+          <div class="control is-grouped nav-item">
+            <p class="control">
+              <a class="button is-medium" href="#">Sign up</a>
+            </p>
+            <p class="control">
+              <a class="button is-medium is-info" href="#">Log in</a>
+            </p>
+          </div>
+        </div>
+      </nav>
+      <nav class="nav">
+        <div class="nav-center">
+          <a class="nav-item hero-brand touchable" href="#">
+            <p class="title is-3"><strong>hillary</strong></p>
+          </a>
+        </div>
       </nav>
     </div>
   </section>
@@ -76,7 +92,11 @@ export default {
     color: #36AC70;
   }
   .admin {
-    color: #28374B;
+    color: #ffffff;
   }
+}
+
+.nav.dark {
+  background: #0A294F;
 }
 </style>

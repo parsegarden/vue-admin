@@ -81,7 +81,7 @@ export default {
 
 .app-sidebar {
   position: fixed;
-  top: 50px;
+  top: 100px;
   left: 0;
   bottom: 0;
   padding: 20px 0px 50px;

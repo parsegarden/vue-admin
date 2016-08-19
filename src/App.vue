@@ -1,10 +1,8 @@
 <template>
   <div id="app">
     <navbar></navbar>
-    <sidebar></sidebar>
     <section class="app-main">
       <div class="container is-fluid is-marginless app-content">
-        <levelbar></levelbar>
         <router-view
           class="animated"
           transition="fade"
@@ -13,31 +11,29 @@
         </router-view>
       </div>
     </section>
-    <footer-bar></footer-bar>
   </div>
 </template>
 
 <script>
 import store from './vuex/store'
+import { performQuery } from './vuex/actions'
 import Navbar from './components/Navbar'
-import Sidebar from './components/Sidebar'
-import Levelbar from './components/Levelbar'
-import FooterBar from './components/FooterBar'
 
 export default {
   store,
 
+  components: {
+    Navbar
+  },
+
   vuex: {
-    getters: {
-      sidebar: state => state.sidebar
+    actions: {
+      performQuery
     }
   },
 
-  components: {
-    Navbar,
-    Sidebar,
-    Levelbar,
-    FooterBar
+  ready () {
+    this.performQuery()
   }
 }
 </script>
@@ -46,8 +42,8 @@ export default {
 @import 'scss/app';
 
 .app-main {
-  padding-top: 50px;
-  margin-left: 180px;
+  padding-top: 100px;
+  //margin-left: 180px;
   transform: translate3d(0, 0, 0);
 
   @include mobile() {
