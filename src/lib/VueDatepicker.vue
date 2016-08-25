@@ -240,11 +240,13 @@ export default {
     ok: function () {
       var self = this
       self.show = false
+      console.log('ok', self.time1, self.time2)
       if (self.range && self.confirm) {
         self.startTime = self.getOutTime(self.time1)
         self.endTime = self.getOutTime(self.time2)
         self.onConfirm && self.onConfirm(self.startTime, self.endTime)
       }
+      console.log('ok', self.startTime, self.endTime)
     },
     selectRange: function (item) {
       var self = this

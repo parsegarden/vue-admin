@@ -124,14 +124,14 @@ export default {
 
       console.log('MONTHS', months)
       x.domain(D3.extent(months))
-      y.domain([0, D3.max(cities, function (c) { return D3.max(c.values, function (d) { return d.value }) })]).nice()
+      y.domain([0, D3.max(cities, function (c) { return D3.max(c.values, function (d) { return d.value }) })])
 
       let tickEvery = Math.floor(months.length / 3)
       console.log('tickEvery', tickEvery)
       svg.append('g')
       .attr('class', 'axis axis--x')
       .attr('transform', 'translate(0,' + actualHeight + ')')
-      .call(D3.axisBottom(x).ticks(D3.timeHour.every(tickEvery)))
+      .call(D3.axisBottom(x).ticks(D3.timeHour.every(tickEvery)).tickFormat(D3.timeFormat('%a %I%p')))
 
       svg.selectAll('.tick > text')
       .attr('y', 20)
@@ -141,8 +141,8 @@ export default {
       .attr('class', 'axis axis--y')
       .call(D3.axisLeft(y))
       .append('text')
-      .attr('x', 9)
-      .attr('y', 0.5)
+      .attr('x', -35)
+      .attr('y', -15)
       .attr('dy', '.32em')
       .style('text-anchor', 'start')
       .style('fill', '#000')
@@ -164,9 +164,12 @@ export default {
       focus.append('circle')
       .attr('r', 3.5)
 
-      focus.append('text')
-      .attr('y', -10)
-      .attr('x', -60)
+      focus.append('foreignObject')
+        .attr('width', 100)
+        .attr('height', 100)
+        .attr('y', -10)
+        .attr('x', -60)
+        .append('xhtml:body')
 
       let voronoiGroup = svg.append('g')
       .attr('class', 'voronoi')
@@ -191,15 +194,37 @@ export default {
       }
 
       function mouseover (d) {
+        console.log('mouseover', d[0][0])
+        let coords = d[0]
         d = d.data
         D3.select(d.city.line).classed('city--hover', true)
+        // console.log('mouseover', focus.selectAll('text'))
         // MOVE line to front
         d.city.line.parentNode.appendChild(d.city.line)
         focus.attr('transform', 'translate(' + x(d.date) + ',' + y(d.value) + ')')
-        focus.select('text')
-        .attr('transform', 'translate(-15,-10)')
-        .text(d.city.name + ' (' + d.value + ' tweets) ' + moment(d.date).format('LT'))
-        // console.log('GRAPH', 'tweetIds =>', d.tweetIds);
+        let foreignObject = focus.select('foreignObject')
+        if (coords[0] > 50) {
+          foreignObject.attr('transform', 'translate(-60,-10)')
+        } else {
+          foreignObject.attr('transform', 'translate(70,-10)')
+        }
+        foreignObject
+          .select('body')
+          .attr('style', 'background: white; border: 1px solid gray; padding: 4px; border-radius: 4px')
+          .html('')
+        foreignObject.select('body')
+          .append('p')
+          .text(d.city.name)
+        foreignObject.select('body')
+          .append('p')
+          .attr('style', 'color: black')
+          .text(d.value + ' tweets')
+        foreignObject.select('body')
+          .append('p')
+          .text(moment(d.date).format('MMM Do'))
+        foreignObject.select('body')
+          .append('p')
+          .text(moment(d.date).format('h:mm a'))
       }
 
       function mouseout (d) {

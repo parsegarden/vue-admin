@@ -5,23 +5,24 @@
       <div class="tile is-ancestor">
         <div class="tile is-parent is-vertical is-3">
           <article class="tile is-child box light">
-            <p class="title white">New to Parsegarden?</p>
-            <p class="content white">Sign up now to analyze and compare trends on Twitter</p>
+            <p class="subtitle"><strong class="white">New to Parsegarden?</strong></p>
+            <p class="subtitle content white">Sign up now to analyze and compare trends on Twitter</p>
             <p class="control">
               <a class="button is-medium is-info" href="#">Sign up</a>
             </p>
           </article>
           <article class="tile is-child box">
             <p><strong>Track Trends</strong></p>
-            <p class="content">Easily track any set of Twitter queries</p>
+            <p class="subtitle content">Easily track any set of Twitter queries</p>
             <p><strong>Find Patterns</strong></p>
-            <p class="content">Explore the language and hashtags used and find influencers</p>
+            <p class="subtitle content">Explore the language and hashtags used and find influencers</p>
             <p><strong>Discover Content</strong></p>
-            <p class="content">Read the most engaging tweets over time</p>
+            <p class="subtitle content">Read the most engaging tweets over time</p>
           </article>
         </div>
 
         <div class="tile is-parent is-vertical is-9">
+          <!--
           <article class="tile is-child box">
             <div class="columns">
               <div class="column">
@@ -42,38 +43,20 @@
               </div>
             </div>
           </article>
-          <article id="graph" class="tile is-child box">
+          -->
+          <article class="tile is-child box">
+            <div class="control is-horizontal">
+              <mz-datepicker format="yyyy-MM-dd" :start-time.sync="getFormattedStart" :end-time.sync="getFormattedEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> </div>
             <time-graph :count="getDrawCount" :width="getGraphWidth" :height="getGraphHeight"></time-graph>
           </article>
         </div>
       </div>
 
       <div class="tile is-ancestor">
-        <div class="tile is-parent">
-          <article class="tile is-child box">
-            <p class="title">Words</p>
-            <table class="table">
-              <tbody>
-                <tr><th>soon</th></tr>
-              </tbody>
-            </table>
-          </article>
-        </div>
-        <div class="tile is-parent">
-          <article class="tile is-child box">
-            <p class="title">Hashtags</p>
-          </article>
-        </div>
-        <div class="tile is-parent">
-          <article class="tile is-child box">
-            <p class="title">Users</p>
-          </article>
-        </div>
-        <div class="tile is-parent">
-          <article class="tile is-child box">
-            <p class="title">Tweets</p>
-          </article>
-        </div>
+        <filter-table title="Words" :schema="wordSchema" :collection="getWordCollection"></filter-table>
+        <filter-table title="Hashtags" :schema="tagSchema" :collection="getTagCollection"></filter-table>
+        <filter-table title="Users" :schema="userSchema" :collection="getUserCollection"></filter-table>
+        <tweet-table title="Tweets" :collection="getTweetCollection"></tweet-table>
       </div>
 
     </div>
@@ -81,8 +64,9 @@
 </template>
 
 <script>
-import { performQuery, setStart, setEnd } from '../../../vuex/actions'
+import { performQuery, setStart, setEnd, confirmTimeRange } from '../../../vuex/actions'
 import {
+  getQueryResult,
   getFormattedStart,
   getFormattedEnd,
   getGraphWidth,
@@ -91,18 +75,23 @@ import {
 } from '../../../vuex/getters'
 
 import Chart from 'vue-bulma-chartjs'
-import DatePicker from 'vue-bulma-datepicker'
+import MzDatepicker from '../../../lib/VueDatepicker'
 import TimeGraph from 'components/TimeGraph'
+import FilterTable from 'components/FilterTable'
+import TweetTable from 'components/TweetTable'
 
 export default {
   components: {
     Chart,
     TimeGraph,
-    DatePicker
+    MzDatepicker,
+    FilterTable,
+    TweetTable
   },
 
   vuex: {
     getters: {
+      getQueryResult,
       getFormattedStart,
       getFormattedEnd,
       getGraphWidth,
@@ -112,7 +101,18 @@ export default {
     actions: {
       performQuery,
       setStart,
-      setEnd
+      setEnd,
+      confirmTimeRange
+    }
+  },
+
+  data: function () {
+    return {
+      wordSchema: [{ token: 'Token' }],
+      tagSchema: [{ token: 'Tag' }],
+      userSchema: [{ token: 'Handle' }],
+      startTime: new Date('2016-03-31').getTime(),
+      endTime: new Date('2016-04-12').getTime()
     }
   },
 
@@ -123,42 +123,26 @@ export default {
     defaultEnd () {
       return { defaultDate: this.getFormattedEnd, enableTime: true }
     },
-    chartData () {
-      return {
-        labels: [
-          'Red',
-          'Blue',
-          'Yellow'
-        ],
-        datasets: [{
-          data: this.data,
-          backgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            '#FFCE56'
-          ]
-        }]
-      }
+    getWordCollection () {
+      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] !== '@' && obj.token[0] !== '#' }) : []
+    },
+    getTagCollection () {
+      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] === '#' }) : []
+    },
+    getUserCollection () {
+      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] === '@' }) : []
+    },
+    getTweetCollection () {
+      return this.getQueryResult.tweets
     }
   },
 
   ready () {
     let self = this
+
     this.$store.watch(getFormattedStart, function (start) {
       console.log('WATCH start', start)
       self.performQuery()
-    })
-    this.$store.watch(getFormattedEnd, function (end) {
-      console.log('WATCH end', end)
-      self.performQuery()
-    })
-
-    this.$refs.startDateTime.datepicker.set('onChange', (d) => {
-      self.setStart(d)
-    })
-
-    this.$refs.endDateTime.datepicker.set('onChange', (d) => {
-      self.setEnd(d)
     })
   }
 }
