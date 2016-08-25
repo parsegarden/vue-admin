@@ -16,8 +16,8 @@ export function getDrawCount (state) {
 }
 
 export function getFormattedStart (state) {
-  let date = moment(new Date(state.start * 1000)).format('YYYY-MM-DD hh:mm:ss')
-  return date
+  // let date = moment(new Date(state.start * 1000)).format('YYYY-MM-DD hh:mm:ss')
+  return state.start * 1000
 }
 
 export function getStart (state) {
@@ -25,8 +25,8 @@ export function getStart (state) {
 }
 
 export function getFormattedEnd (state) {
-  let date = moment(new Date(state.end * 1000)).format('YYYY-MM-DD hh:mm:ss')
-  return date
+  // let date = moment(new Date(state.end * 1000)).format('YYYY-MM-DD hh:mm:ss')
+  return state.end * 1000
 }
 
 export function getEnd (state) {

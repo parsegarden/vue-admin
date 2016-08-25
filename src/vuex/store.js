@@ -7,15 +7,20 @@ const { menu } = config
 
 Vue.use(Vuex)
 
+let now = Math.round(new Date().getTime()/1000)
 const state = {
   menu, // SHORT for 'menu: menu
   queryToken: 'hillary',
-  queryResult: null,
-  start: 1471200000,
-  end: 1471265611,
+  queryResult: {},
+  start: now - 100000,
+  end: now,
   graphWidth: 800,
   graphHeight: 550,
-  drawCount: 0
+  drawCount: 0,
+  wordCollection: [],
+  tagCollection: [],
+  userCollection: [],
+  tweetCollection: []
 }
 
 const mutations = {
@@ -32,9 +37,32 @@ const mutations = {
     state.drawCount = state.drawCount + 1
   },
 
+  SET_WORD_COLLECTION (state, array) {
+    state.wordCollection = array
+  },
+
+  SET_TAG_COLLECTION (state, array) {
+    state.tagCollection = array
+  },
+
+  SET_USER_COLLECTION (state, array) {
+    state.userCollection = array
+  },
+
+  SET_TWEETS_COLLECTION (state, array) {
+    state.tweetsCollection = array
+  },
+
   SET_QUERY_RESULT (state, result) {
     state.queryResult = result
     console.log('STATE.queryResult.count', state.queryResult.count)
+  },
+
+  CONFIRM_TIME_RANGE (state, start, end) {
+    state.start = Math.floor(start)
+    state.end = Math.floor(end)
+    console.log('STATE.start', state.start)
+    console.log('STATE.end', state.end)
   },
 
   SET_START (state, start) {

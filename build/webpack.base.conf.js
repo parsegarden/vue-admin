@@ -32,12 +32,14 @@ module.exports = {
         include: projectRoot,
         exclude: /node_modules/
       },
+      /*
       {
         test: /\.js$/,
         loader: 'eslint',
         include: projectRoot,
         exclude: /node_modules/
       }
+      */
     ],
     loaders: [
       {

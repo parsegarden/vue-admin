@@ -3,12 +3,13 @@
     <navbar></navbar>
     <section class="app-main">
       <div class="container is-fluid is-marginless app-content">
-        <router-view
+      <view></view>
+        <!--<router-view
           class="animated"
           transition="fade"
           transition-mode="out-in"
           keep-alive>
-        </router-view>
+        </router-view>-->
       </div>
     </section>
   </div>
@@ -18,12 +19,14 @@
 import store from './vuex/store'
 import { performQuery } from './vuex/actions'
 import Navbar from './components/Navbar'
+import View from './components/pages/Dashboard/index'
 
 export default {
   store,
 
   components: {
-    Navbar
+    Navbar,
+    View
   },
 
   vuex: {

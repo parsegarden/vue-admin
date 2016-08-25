@@ -10,6 +10,11 @@ export const incrementDrawCount = function ({ dispatch, state }) {
   dispatch('INCREMENT')
 }
 
+export const confirmTimeRange = function({ dispatch, state }, start, end) {
+  console.log('confirmTimeRange', start / 1000, end / 1000)
+  dispatch('CONFIRM_TIME_RANGE', start / 1000, end / 1000)
+}
+
 export const setStart = function ({ dispatch, state }, start) {
   console.log('setStart', start.getTime() / 1000)
   dispatch('SET_START', start.getTime() / 1000)
