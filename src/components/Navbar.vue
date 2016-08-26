@@ -23,16 +23,19 @@
               <a class="button is-medium" href="#">Sign up</a>
             </p>
             <p class="control">
-              <a class="button is-medium is-info" href="#">Log in</a>
+              <a class="button is-medium is-primary" href="#">Login</a>
             </p>
           </div>
         </div>
       </nav>
       <nav class="nav">
         <div class="nav-center">
-          <a class="nav-item hero-brand touchable" href="#">
-            <p class="title is-3"><strong>hillary</strong></p>
-          </a>
+          <div class="nav-item hero-brand touchable">
+            <div class="control has-addons">
+              <input class="input" type="text" placeholder="Track a word, hashtag, or user" value="hillary">
+              <a id="searchBtn" class="button is-medium is-info">Track Search</a>
+            </div>
+          </div>
         </div>
       </nav>
     </div>
@@ -57,6 +60,15 @@ export default {
 
 <style lang="scss">
 @import '~bulma/sass/utilities/variables';
+
+input[type=text] {
+  font-size: 24px;
+  height: 40px;
+}
+
+#searchBtn {
+  height: 40px;
+}
 
 .app-navbar {
   position: fixed;

@@ -2,17 +2,23 @@
   <div class="tile is-parent">
 
       <article class="tile is-child box">
-        <h4 class="title">{{ title }}</h4>
+        <tabs size="medium" type="boxed">
+          <tab-pane label="Language"></tab-pane>
+          <tab-pane label="Hashtags"></tab-pane>
+          <tab-pane label="Users"></tab-pane>
+        </tabs>
+
+        <!--<h4 class="title">{{ title }}</h4>-->
         <table class="table">
-          <!--<thead>
-            <tr v-for="label in schema">
+          <thead>
+            <tr>
               <th>{{ label.token }}</th>
             </tr>
-          </thead>-->
+          </thead>
           <tbody>
             <tr v-for="row in collection">
-              <td>{{ row.token }}</td>
-              <td>{{ row.metadata }}</td>
+              <td>{{ row.token | truncate 25 '...' }}</td>
+              <td><a href="#">{{ row.tweetCount }}</a></td>
             </tr>
           </tbody>
         </table>
@@ -22,7 +28,13 @@
 </template>
 
 <script>
+import { Tabs, TabPane } from 'vue-bulma-tabs'
+
 export default {
+  components: {
+    Tabs,
+    TabPane
+  },
   props: {
     title: String,
     schema: {
@@ -44,4 +56,7 @@ export default {
 </script>
 
 <style lang="scss">
+td {
+  font-size: 16px;
+}
 </style>

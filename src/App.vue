@@ -45,7 +45,7 @@ export default {
 @import 'scss/app';
 
 .app-main {
-  padding-top: 100px;
+  padding-top: 120px;
   //margin-left: 180px;
   transform: translate3d(0, 0, 0);
 

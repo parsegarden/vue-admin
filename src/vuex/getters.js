@@ -36,3 +36,7 @@ export function getEnd (state) {
 export function getQueryResult (state) {
   return state.queryResult
 }
+
+export function getLoadStatus (state) {
+  return state.loadStatus
+}

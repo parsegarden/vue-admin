@@ -12,6 +12,32 @@ import './transitions'
 Vue.use(Router)
 Vue.use(Resource)
 
+import Truncate from 'vue-truncate'
+Vue.use(Truncate)
+
+import { linky } from './lib/jquery.linky'
+import { twemoji } from './lib/twemoji'
+import moment from 'moment'
+var tweetFilter = function (text) {
+  // console.log('tweetify', text)
+  text = linky(text, {
+    mentions: true,
+    hashtags: true,
+    urls: true,
+    linkTo: "twitter"
+  });
+  return twemoji.parse(text)
+};
+Vue.filter('tweetify', tweetFilter);
+var timeFilter = function (timestamp) {
+  return moment(timestamp, 'X').fromNow();
+}
+Vue.filter('timify', timeFilter);
+var linkFilter = function (o) {
+  return 'https://twitter.com/'+o.screenName+'/status/'+o.id;
+}
+Vue.filter('linkify', linkFilter);
+
 import App from './App'
 import Dashboard from './components/pages/Dashboard/'
 

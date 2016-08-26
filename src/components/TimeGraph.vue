@@ -4,7 +4,7 @@
 
 <script>
 import { getQueryResult } from '../vuex/getters'
-import { resize } from '../vuex/actions'
+import { resize, finishDraw } from '../vuex/actions'
 
 import * as D3 from 'd3'
 import moment from 'moment'
@@ -31,7 +31,8 @@ export default {
 
   vuex: {
     actions: {
-      resize
+      resize,
+      finishDraw
     },
     getters: {
       getQueryResult
@@ -45,8 +46,6 @@ export default {
   },
 
   ready () {
-    console.log('this.$store', this.$store)
-
     let self = this
     window.addEventListener('resize', function () {
       if (self.getQueryResult !== null && self.getQueryResult.count > 0) {
@@ -83,7 +82,6 @@ export default {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
     },
     drawGraph (data) {
-      console.log('drawGraph', getQueryResult)
       console.log('drawGraph', this.width, this.height)
 
       let margin = {top: 20, right: 55, bottom: 30, left: 40}
@@ -104,6 +102,11 @@ export default {
       let months = []
       let cities = []
       let timeGraph = data['timeGraph']
+
+      if (timeGraph == null) {
+        return
+      }
+
       for (let i in timeGraph) {
         cities.push(createGraphNode(i, timeGraph[i]))
       }
@@ -122,7 +125,7 @@ export default {
       .y(function (d) { return y(d.value) })
       // console.log(line)
 
-      console.log('MONTHS', months)
+      // console.log('MONTHS', months)
       x.domain(D3.extent(months))
       y.domain([0, D3.max(cities, function (c) { return D3.max(c.values, function (d) { return d.value }) })])
 
@@ -135,11 +138,11 @@ export default {
 
       svg.selectAll('.tick > text')
       .attr('y', 20)
-      .style('font-size', '12')
 
       svg.append('g')
       .attr('class', 'axis axis--y')
       .call(D3.axisLeft(y))
+      /*
       .append('text')
       .attr('x', -35)
       .attr('y', -15)
@@ -149,6 +152,10 @@ export default {
       .style('font-weight', 'bold')
       .style('font-size', '12')
       .text('# of Tweets')
+      */
+
+      svg.selectAll('.tick > text')
+      .style('font-size', '12')
 
       svg.append('g')
       .attr('class', 'cities')
@@ -194,16 +201,15 @@ export default {
       }
 
       function mouseover (d) {
-        console.log('mouseover', d[0][0])
+        // console.log('mouseover', d[0][0], d[0][1], d)
         let coords = d[0]
         d = d.data
         D3.select(d.city.line).classed('city--hover', true)
-        // console.log('mouseover', focus.selectAll('text'))
         // MOVE line to front
         d.city.line.parentNode.appendChild(d.city.line)
         focus.attr('transform', 'translate(' + x(d.date) + ',' + y(d.value) + ')')
         let foreignObject = focus.select('foreignObject')
-        if (coords[0] > 50) {
+        if (coords[0] > 70) {
           foreignObject.attr('transform', 'translate(-60,-10)')
         } else {
           foreignObject.attr('transform', 'translate(70,-10)')
@@ -255,6 +261,8 @@ export default {
 
         return city
       }
+
+      this.finishDraw()
     }
   }
 }

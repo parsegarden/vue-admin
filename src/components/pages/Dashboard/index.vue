@@ -3,60 +3,51 @@
     <div class="tile is-vertical">
       
       <div class="tile is-ancestor">
-        <div class="tile is-parent is-vertical is-3">
+        <div class="tile is-parent is-vertical">
           <article class="tile is-child box light">
-            <p class="subtitle"><strong class="white">New to Parsegarden?</strong></p>
-            <p class="subtitle content white">Sign up now to analyze and compare trends on Twitter</p>
-            <p class="control">
-              <a class="button is-medium is-info" href="#">Sign up</a>
-            </p>
+            <p class="title white is-4">New to Parsegarden?</p>
+            <div class="block">
+              <p class="subtitle is-5 white">Sign up with your Twitter account</p>
+              <div class="control is-3">
+                <a class="button is-medium" href="#">Sign up</a>
+              </div>
+            </div>
           </article>
           <article class="tile is-child box">
-            <p><strong>Track Trends</strong></p>
-            <p class="subtitle content">Easily track any set of Twitter queries</p>
+            <!--<p><strong>Track Search Queries</strong></p>-->
+            <p class="title is-5">Track the results of Twitter searches over time</p>
             <p><strong>Find Patterns</strong></p>
-            <p class="subtitle content">Explore the language and hashtags used and find influencers</p>
+            <p class="subtitle">Explore the language and hashtags used and find influential users within a query</p>
             <p><strong>Discover Content</strong></p>
-            <p class="subtitle content">Read the most engaging tweets over time</p>
+            <p class="subtitle">Read the most engaging tweets from a search query</p>
+            <div class="control">
+              <a class="button is-medium is-info" href="#">Tutorial</a>
+            </div>
           </article>
         </div>
 
         <div class="tile is-parent is-vertical is-9">
-          <!--
-          <article class="tile is-child box">
-            <div class="columns">
-              <div class="column">
-                <div class="control is-horizontal">
-                  <div class="control-label">
-                    <label class="label">Start</h2>
-                  </div>
-                  <date-picker v-ref:start-date-time placeholder="Pick START date AND time" :config="defaultStart"></date-picker>
-                </div>
-              </div>
-              <div class="column">
-                <div class="control is-horizontal">
-                  <div class="control-label">
-                    <label class="label">End</h2>
-                  </div>
-                  <date-picker v-ref:end-date-time placeholder="Pick END date AND time" :config="defaultEnd"></date-picker>
-                </div>
+          <article class="tile is-child box" style="position: relative" v-loading="getLoadStatus" :loading-options="{ text: getLoadMessage }">
+            <div class="block is-flex">
+              <label class="label"># of tweets from</label>
+              <div class="control is-horizontal">
+                <mz-datepicker format="M/d/yy" :start-time.sync="getFormattedStart" :end-time.sync="getFormattedEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> 
               </div>
             </div>
-          </article>
-          -->
-          <article class="tile is-child box">
-            <div class="control is-horizontal">
-              <mz-datepicker format="yyyy-MM-dd" :start-time.sync="getFormattedStart" :end-time.sync="getFormattedEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> </div>
             <time-graph :count="getDrawCount" :width="getGraphWidth" :height="getGraphHeight"></time-graph>
           </article>
         </div>
       </div>
 
-      <div class="tile is-ancestor">
-        <filter-table title="Words" :schema="wordSchema" :collection="getWordCollection"></filter-table>
-        <filter-table title="Hashtags" :schema="tagSchema" :collection="getTagCollection"></filter-table>
-        <filter-table title="Users" :schema="userSchema" :collection="getUserCollection"></filter-table>
-        <tweet-table title="Tweets" :collection="getTweetCollection"></tweet-table>
+      <div class="tile is-ancestor" style="position: relative" v-loading="getLoadStatus" :loading-options="{ text: getLoadMessage }">
+        <div class="tile">
+          <filter-table title="Language" :schema="wordSchema" :collection="getWordCollection"></filter-table>
+          <!--<filter-table title="Hashtags" :schema="tagSchema" :collection="getTagCollection"></filter-table>-->
+          <!--<filter-table title="Users" :schema="userSchema" :collection="getUserCollection"></filter-table>-->
+        </div>
+        <div class="tile is-6">
+          <tweet-table title="Tweets" :collection="getTweetCollection"></tweet-table>
+        </div>
       </div>
 
     </div>
@@ -69,9 +60,12 @@ import {
   getQueryResult,
   getFormattedStart,
   getFormattedEnd,
+  getStart,
+  getEnd,
   getGraphWidth,
   getGraphHeight,
-  getDrawCount
+  getDrawCount,
+  getLoadStatus
 } from '../../../vuex/getters'
 
 import Chart from 'vue-bulma-chartjs'
@@ -79,8 +73,14 @@ import MzDatepicker from '../../../lib/VueDatepicker'
 import TimeGraph from 'components/TimeGraph'
 import FilterTable from 'components/FilterTable'
 import TweetTable from 'components/TweetTable'
+import loading from 'vue-loading'
+import moment from 'moment'
 
 export default {
+  directives: {
+    loading
+  },
+
   components: {
     Chart,
     TimeGraph,
@@ -94,9 +94,12 @@ export default {
       getQueryResult,
       getFormattedStart,
       getFormattedEnd,
+      getStart,
+      getEnd,
       getGraphWidth,
       getGraphHeight,
-      getDrawCount
+      getDrawCount,
+      getLoadStatus
     },
     actions: {
       performQuery,
@@ -133,7 +136,18 @@ export default {
       return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] === '@' }) : []
     },
     getTweetCollection () {
-      return this.getQueryResult.tweets
+      let outArr = []
+      if (this.getQueryResult.tweets !== null && this.getQueryResult.tweets !== undefined) {
+        outArr = this.getQueryResult.tweets.map(function (obj) {
+          // obj.formattedText = twemoji.parse(obj.rawText)
+          return obj
+        })
+        console.log('getTweetCollection', outArr[0])
+      }
+      return outArr
+    },
+    getLoadMessage () {
+      return 'loading results for ' + moment(this.getStart, 'X').fromNow() + ' to ' + moment(this.getEnd, 'X').fromNow() + ' ...'
     }
   },
 
@@ -148,7 +162,24 @@ export default {
 }
 </script>
 
+<style>
+.vue-loading-msg {
+  height: 60px;
+}
+</style>
 <style lang="scss" scoped>
+label {
+  padding: 8px;
+}
+
+.is-loading:after {
+  height: 30px;
+  width: 30px;
+  border: 4px solid blue;
+  border-right-color: transparent;
+  border-left-color: transparent;
+}
+
 .white {
   color: white;
 }

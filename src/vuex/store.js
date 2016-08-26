@@ -17,10 +17,7 @@ const state = {
   graphWidth: 800,
   graphHeight: 550,
   drawCount: 0,
-  wordCollection: [],
-  tagCollection: [],
-  userCollection: [],
-  tweetCollection: []
+  loadStatus: true
 }
 
 const mutations = {
@@ -30,32 +27,23 @@ const mutations = {
   RESIZE (state) {
     state.graphWidth = document.getElementById('graph').clientWidth
     state.graphHeight = document.getElementById('graph').clientHeight
-    console.log('STATE', 'graphWidth', state.graphWidth, 'graphHeight', state.graphHeight)
   },
 
   INCREMENT (state) {
     state.drawCount = state.drawCount + 1
   },
 
-  SET_WORD_COLLECTION (state, array) {
-    state.wordCollection = array
-  },
-
-  SET_TAG_COLLECTION (state, array) {
-    state.tagCollection = array
-  },
-
-  SET_USER_COLLECTION (state, array) {
-    state.userCollection = array
-  },
-
-  SET_TWEETS_COLLECTION (state, array) {
-    state.tweetsCollection = array
-  },
-
   SET_QUERY_RESULT (state, result) {
     state.queryResult = result
     console.log('STATE.queryResult.count', state.queryResult.count)
+  },
+
+  START_DRAW (state) {
+    state.loadStatus = true
+  },
+
+  FINISH_DRAW (state) {
+    state.loadStatus = false
   },
 
   CONFIRM_TIME_RANGE (state, start, end) {

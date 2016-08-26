@@ -117,7 +117,7 @@ export default {
     value: function () {
       if (this.range) {
         if (this.startTime && this.endTime) {
-          return this.stringify(this.parse(this.startTime, false)) + ' ~ ' + this.stringify(this.parse(this.endTime, false))
+          return this.stringify(this.parse(this.startTime, false)) + ' to ' + this.stringify(this.parse(this.endTime, false))
         } else {
           return ''
         }
@@ -217,7 +217,7 @@ export default {
         self.now2 = self.parse(self.endTime) || new Date()
       }
       var rect = this.$el.getBoundingClientRect()
-      console.log('RECT', rect)
+      // console.log('RECT', rect)
       let right = document.documentElement.clientWidth - rect.left
       right < (self.range ? 441 : 214) && right < rect.left ? (self.left = true) : (self.left = false)
       self.show = !self.show
@@ -240,13 +240,11 @@ export default {
     ok: function () {
       var self = this
       self.show = false
-      console.log('ok', self.time1, self.time2)
       if (self.range && self.confirm) {
         self.startTime = self.getOutTime(self.time1)
         self.endTime = self.getOutTime(self.time2)
         self.onConfirm && self.onConfirm(self.startTime, self.endTime)
       }
-      console.log('ok', self.startTime, self.endTime)
     },
     selectRange: function (item) {
       var self = this
@@ -384,6 +382,7 @@ export default {
       let seconds = time.getSeconds() // 秒
       let milliseconds = time.getMilliseconds() // 毫秒
       var map = {
+        yy: year.toString().slice(-2),
         yyyy: year,
         MM: ('0' + month).slice(-2),
         M: month,
@@ -513,3 +512,9 @@ export default {
 }
 </script>
 <style src="./vue.datepicker.css"></style>
+<style scoped>
+input {
+  height: 34px;
+  font-size: 18px;  
+}
+</style>

@@ -26,6 +26,8 @@ export const setEnd = function ({ dispatch, state }, end) {
 }
 
 export const performQuery = function ({ dispatch, state }) {
+  dispatch('START_DRAW')
+
   let xhr = new XMLHttpRequest()
 
   xhr.open('POST', 'https://sc901zcfbj.execute-api.us-west-2.amazonaws.com/dev/PerformActiveQuery')
@@ -38,5 +40,10 @@ export const performQuery = function ({ dispatch, state }) {
   let queryStr = JSON.stringify({ query: state.queryToken, start: state.start, end: state.end })
   xhr.send(queryStr)
 
+  console.log('performQuery', 'start', new Date(state.start*1000), 'end', new Date(state.end*1000))
   console.log('performQuery', queryStr)
+}
+
+export const finishDraw = function({ dispatch, state }) {
+  dispatch('FINISH_DRAW')
 }
