@@ -15,11 +15,13 @@
           </article>
           <article class="tile is-child box">
             <!--<p><strong>Track Search Queries</strong></p>-->
-            <p class="title is-5">Track the results of Twitter searches over time</p>
-            <p><strong>Find Patterns</strong></p>
-            <p class="subtitle">Explore the language and hashtags used and find influential users within a query</p>
-            <p><strong>Discover Content</strong></p>
-            <p class="subtitle">Read the most engaging tweets from a search query</p>
+            <div class="block">
+              <p class="title is-5">Track the results of Twitter searches over time</p>
+              <p><strong>Discover Patterns</strong></p>
+              <p>Learn the language and hashtags used and find the influential users within a query</p>
+              <p><strong>Discover Content</strong></p>
+              <p>Read the most engaging tweets from a search query</p>
+            </div>
             <div class="control">
               <a class="button is-medium is-info" href="#">Tutorial</a>
             </div>
@@ -34,7 +36,7 @@
                 <mz-datepicker format="M/d/yy" :start-time.sync="getFormattedStart" :end-time.sync="getFormattedEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> 
               </div>
             </div>
-            <time-graph :count="getDrawCount" :width="getGraphWidth" :height="getGraphHeight"></time-graph>
+            <time-graph :width="getGraphWidth" :height="getGraphHeight"></time-graph>
           </article>
         </div>
       </div>
@@ -57,6 +59,7 @@
 <script>
 import { performQuery, setStart, setEnd, confirmTimeRange } from '../../../vuex/actions'
 import {
+  getQueryToken,
   getQueryResult,
   getFormattedStart,
   getFormattedEnd,
@@ -64,7 +67,6 @@ import {
   getEnd,
   getGraphWidth,
   getGraphHeight,
-  getDrawCount,
   getLoadStatus
 } from '../../../vuex/getters'
 
@@ -73,7 +75,7 @@ import MzDatepicker from '../../../lib/VueDatepicker'
 import TimeGraph from 'components/TimeGraph'
 import FilterTable from 'components/FilterTable'
 import TweetTable from 'components/TweetTable'
-import loading from 'vue-loading'
+import loading from '../../../lib/vue-loading'
 import moment from 'moment'
 
 export default {
@@ -91,6 +93,7 @@ export default {
 
   vuex: {
     getters: {
+      getQueryToken,
       getQueryResult,
       getFormattedStart,
       getFormattedEnd,
@@ -98,7 +101,6 @@ export default {
       getEnd,
       getGraphWidth,
       getGraphHeight,
-      getDrawCount,
       getLoadStatus
     },
     actions: {
@@ -142,12 +144,12 @@ export default {
           // obj.formattedText = twemoji.parse(obj.rawText)
           return obj
         })
-        console.log('getTweetCollection', outArr[0])
+        console.log('getTweetCollection', outArr.length)
       }
       return outArr
     },
     getLoadMessage () {
-      return 'loading results for ' + moment(this.getStart, 'X').fromNow() + ' to ' + moment(this.getEnd, 'X').fromNow() + ' ...'
+      return 'LOADING results for ' + this.getQueryToken.toUpperCase() + ' ' + moment(this.getStart, 'X').format('MMM Do') + ' to ' + moment(this.getEnd, 'X').format('ll')
     }
   },
 
@@ -162,11 +164,6 @@ export default {
 }
 </script>
 
-<style>
-.vue-loading-msg {
-  height: 60px;
-}
-</style>
 <style lang="scss" scoped>
 label {
   padding: 8px;

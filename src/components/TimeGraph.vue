@@ -3,12 +3,13 @@
 </template>
 
 <script>
-import { getQueryResult } from '../vuex/getters'
+import { getQueryResult, getDrawCount } from '../vuex/getters'
 import { resize, finishDraw } from '../vuex/actions'
 
 import * as D3 from 'd3'
 import moment from 'moment'
 
+let margin = {top: 20, right: 60, bottom: 30, left: 40}
 let maxHeight = 350
 let delta = 200
 
@@ -35,17 +36,19 @@ export default {
       finishDraw
     },
     getters: {
-      getQueryResult
+      getQueryResult,
+      getDrawCount
     }
   },
 
   watch: {
     'width': 'tryDraw',
-    'height': 'tryDraw',
-    'count': 'tryDraw'
+    'height': 'tryDraw'
   },
 
   ready () {
+    this.$store.watch(getDrawCount, this.drawGraph)
+
     let self = this
     window.addEventListener('resize', function () {
       if (self.getQueryResult !== null && self.getQueryResult.count > 0) {
@@ -57,6 +60,7 @@ export default {
 
   methods: {
     tryDraw () {
+      console.log('tryDraw')
       this.rtime = new Date()
       if (this.timeout === false) {
         this.timeout = true
@@ -69,11 +73,10 @@ export default {
         setTimeout(this.timedDraw, delta)
       } else {
         this.timeout = false
-        this.drawGraph(this.getQueryResult)
+        this.drawGraph()
       }
     },
     clearGraph () {
-      let margin = {top: 20, right: 55, bottom: 30, left: 40}
       D3.select('#graph').html('')
       D3.select('#graph').append('svg')
       .attr('width', this.width + margin.left + margin.right - 45)
@@ -81,10 +84,11 @@ export default {
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
     },
-    drawGraph (data) {
+    drawGraph () {
+      let data = this.getQueryResult
+
       console.log('drawGraph', this.width, this.height)
 
-      let margin = {top: 20, right: 55, bottom: 30, left: 40}
       let actualWidth = this.width - margin.left - margin.right
       let actualHeight = maxHeight
 
@@ -104,6 +108,7 @@ export default {
       let timeGraph = data['timeGraph']
 
       if (timeGraph == null) {
+        console.log('drawGraph', 'EMPTY')
         return
       }
 
@@ -129,19 +134,20 @@ export default {
       x.domain(D3.extent(months))
       y.domain([0, D3.max(cities, function (c) { return D3.max(c.values, function (d) { return d.value }) })])
 
-      let tickEvery = Math.floor(months.length / 3)
-      console.log('tickEvery', tickEvery)
+      // let tickEvery = Math.floor(months.length / 3)
+      // console.log('tickEvery', tickEvery)
       svg.append('g')
       .attr('class', 'axis axis--x')
       .attr('transform', 'translate(0,' + actualHeight + ')')
-      .call(D3.axisBottom(x).ticks(D3.timeHour.every(tickEvery)).tickFormat(D3.timeFormat('%a %I%p')))
+      // .call(D3.axisBottom(x).ticks(D3.timeHour.every(tickEvery)).tickFormat(D3.timeFormat('%a %I%p')))
+      .call(D3.axisBottom(x).ticks(8).tickFormat(D3.timeFormat('%a %I%p')))
 
       svg.selectAll('.tick > text')
       .attr('y', 20)
 
       svg.append('g')
       .attr('class', 'axis axis--y')
-      .call(D3.axisLeft(y))
+      .call(D3.axisLeft(y).ticks(6))
       /*
       .append('text')
       .attr('x', -35)
@@ -263,8 +269,10 @@ export default {
       }
 
       this.finishDraw()
+      console.log('drawGraph', 'FINISH')
     }
   }
+
 }
 </script>
 

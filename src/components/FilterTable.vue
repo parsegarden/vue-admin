@@ -12,7 +12,8 @@
         <table class="table">
           <thead>
             <tr>
-              <th>{{ label.token }}</th>
+              <th>Notable Tokens</th>
+              <th># Tweets</th>
             </tr>
           </thead>
           <tbody>

@@ -25,7 +25,7 @@ const mutations = {
   // You can make any modifications you want inside this function
 
   RESIZE (state) {
-    state.graphWidth = document.getElementById('graph').clientWidth
+    state.graphWidth = document.getElementById('graph').clientWidth + 20
     state.graphHeight = document.getElementById('graph').clientHeight
   },
 
@@ -35,7 +35,6 @@ const mutations = {
 
   SET_QUERY_RESULT (state, result) {
     state.queryResult = result
-    console.log('STATE.queryResult.count', state.queryResult.count)
   },
 
   START_DRAW (state) {

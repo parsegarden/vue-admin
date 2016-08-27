@@ -32,8 +32,11 @@ export const performQuery = function ({ dispatch, state }) {
 
   xhr.open('POST', 'https://sc901zcfbj.execute-api.us-west-2.amazonaws.com/dev/PerformActiveQuery')
   xhr.onload = function () {
-    console.log('onload', JSON.parse(xhr.responseText))
-    dispatch('SET_QUERY_RESULT', JSON.parse(xhr.responseText))
+    let parsed = JSON.parse(xhr.responseText)
+    console.log('performQuery', 'onload', parsed)
+    console.log('performQuery', 'onload', 'count', parsed.count)
+    console.log('performQuery', 'onload', 'timeGraph.length', Object.keys(parsed.timeGraph[state.queryToken]).length)
+    dispatch('SET_QUERY_RESULT', parsed)
     dispatch('INCREMENT')
   }
   xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
@@ -41,9 +44,10 @@ export const performQuery = function ({ dispatch, state }) {
   xhr.send(queryStr)
 
   console.log('performQuery', 'start', new Date(state.start*1000), 'end', new Date(state.end*1000))
-  console.log('performQuery', queryStr)
+  console.log('performQuery', 'query', state.queryToken)
 }
 
 export const finishDraw = function({ dispatch, state }) {
+  console.log('finishDraw')
   dispatch('FINISH_DRAW')
 }

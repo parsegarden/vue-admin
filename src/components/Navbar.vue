@@ -32,7 +32,7 @@
         <div class="nav-center">
           <div class="nav-item hero-brand touchable">
             <div class="control has-addons">
-              <input class="input" type="text" placeholder="Track a word, hashtag, or user" value="hillary">
+              <input class="input" type="text" placeholder="Track a query" value="hillary">
               <a id="searchBtn" class="button is-medium is-info">Track Search</a>
             </div>
           </div>
@@ -62,7 +62,7 @@ export default {
 @import '~bulma/sass/utilities/variables';
 
 input[type=text] {
-  font-size: 24px;
+  font-size: 22px;
   height: 40px;
 }
 

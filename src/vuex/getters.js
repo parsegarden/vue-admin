@@ -12,6 +12,7 @@ export function getGraphHeight (state) {
 }
 
 export function getDrawCount (state) {
+  console.log('getDrawCount')
   return state.drawCount
 }
 
@@ -31,6 +32,10 @@ export function getFormattedEnd (state) {
 
 export function getEnd (state) {
   return state.end
+}
+
+export function getQueryToken (state) {
+  return state.queryToken
 }
 
 export function getQueryResult (state) {
