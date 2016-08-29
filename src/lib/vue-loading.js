@@ -21,11 +21,20 @@ export default {
     ringPulse.className = 'ring-pulse';
     msg.appendChild(ringPulse);
 
+    let innerDiv = document.createElement('div')
+    msg.appendChild(innerDiv)
+
     let text = document.createElement('p')
     let strong = document.createElement('strong')
-    strong.textContent = this.options.text;
+    strong.textContent = this.options.queryText;
     text.appendChild(strong)
-    msg.appendChild(text);
+    innerDiv.appendChild(text);
+
+    text = document.createElement('p')
+    strong = document.createElement('strong')
+    strong.textContent = this.options.rangeText;
+    text.appendChild(strong)
+    innerDiv.appendChild(text);
 
     window.requestAnimationFrame(() => {
       box.style.opacity = 1;

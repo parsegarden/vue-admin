@@ -9,8 +9,8 @@ import { resize, finishDraw } from '../vuex/actions'
 import * as D3 from 'd3'
 import moment from 'moment'
 
-let margin = {top: 20, right: 60, bottom: 30, left: 40}
-let maxHeight = 350
+let margin = {top: 20, right: 70, bottom: 20, left: 40}
+let maxHeight = 200
 let delta = 200
 
 export default {
@@ -79,7 +79,7 @@ export default {
     clearGraph () {
       D3.select('#graph').html('')
       D3.select('#graph').append('svg')
-      .attr('width', this.width + margin.left + margin.right - 45)
+      .attr('width', this.width + margin.left + margin.right)
       .attr('height', maxHeight + margin.top + margin.bottom)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
@@ -90,12 +90,12 @@ export default {
       console.log('drawGraph', this.width, this.height)
 
       let actualWidth = this.width - margin.left - margin.right
-      let actualHeight = maxHeight
+      let actualHeight = maxHeight + 80
 
       D3.select('#graph').html('')
       let svg = D3.select('#graph').append('svg')
-      .attr('width', actualWidth + margin.left + margin.right - 45)
-      .attr('height', actualHeight + margin.top + margin.bottom)
+      .attr('width', actualWidth + margin.left + margin.right)
+      .attr('height', actualHeight + 50)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
@@ -116,7 +116,7 @@ export default {
         cities.push(createGraphNode(i, timeGraph[i]))
       }
 
-      let x = D3.scaleTime().range([0, actualWidth])
+      let x = D3.scaleTime().range([0, actualWidth + 30])
       let y = D3.scaleLinear().range([actualHeight, 0])
 
       let voronoi = D3.voronoi()
@@ -215,10 +215,10 @@ export default {
         d.city.line.parentNode.appendChild(d.city.line)
         focus.attr('transform', 'translate(' + x(d.date) + ',' + y(d.value) + ')')
         let foreignObject = focus.select('foreignObject')
-        if (coords[0] > 70) {
+        if (coords[0] > 140) {
           foreignObject.attr('transform', 'translate(-60,-10)')
         } else {
-          foreignObject.attr('transform', 'translate(70,-10)')
+          foreignObject.attr('transform', 'translate(80,-10)')
         }
         foreignObject
           .select('body')

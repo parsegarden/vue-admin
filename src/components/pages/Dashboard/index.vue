@@ -5,9 +5,9 @@
       <div class="tile is-ancestor">
         <div class="tile is-parent is-vertical">
           <article class="tile is-child box light">
-            <p class="title white is-4">New to Parsegarden?</p>
+            <p class="subtitle white is-5">New to Parsegarden?</p>
             <div class="block">
-              <p class="subtitle is-5 white">Sign up with your Twitter account</p>
+              <p class="subtitle white is-5">Sign up with your Twitter account</p>
               <div class="control is-3">
                 <a class="button is-medium" href="#">Sign up</a>
               </div>
@@ -16,11 +16,11 @@
           <article class="tile is-child box">
             <!--<p><strong>Track Search Queries</strong></p>-->
             <div class="block">
-              <p class="title is-5">Track the results of Twitter searches over time</p>
+              <p class="title is-5">Track a Twitter query over time</p>
               <p><strong>Discover Patterns</strong></p>
-              <p>Learn the language and hashtags used and find the influential users within a query</p>
+              <p>Learn the language, hashtags, and influential users</p>
               <p><strong>Discover Content</strong></p>
-              <p>Read the most engaging tweets from a search query</p>
+              <p>Read the most engaging tweets</p>
             </div>
             <div class="control">
               <a class="button is-medium is-info" href="#">Tutorial</a>
@@ -29,7 +29,7 @@
         </div>
 
         <div class="tile is-parent is-vertical is-9">
-          <article class="tile is-child box" style="position: relative" v-loading="getLoadStatus" :loading-options="{ text: getLoadMessage }">
+          <article class="tile is-child box" style="position: relative" v-loading="getLoadStatus" :loading-options="{ queryText: getQueryMessage, rangeText: getRangeMessage }">
             <div class="block is-flex">
               <label class="label"># of tweets from</label>
               <div class="control is-horizontal">
@@ -41,7 +41,7 @@
         </div>
       </div>
 
-      <div class="tile is-ancestor" style="position: relative" v-loading="getLoadStatus" :loading-options="{ text: getLoadMessage }">
+      <div class="tile is-ancestor" style="position: relative" v-loading="getLoadStatus" :loading-options="{ queryText: getQueryMessage, rangeText: getRangeMessage }">
         <div class="tile">
           <filter-table title="Language" :schema="wordSchema" :collection="getWordCollection"></filter-table>
           <!--<filter-table title="Hashtags" :schema="tagSchema" :collection="getTagCollection"></filter-table>-->
@@ -148,8 +148,14 @@ export default {
       }
       return outArr
     },
+    getQueryMessage () {
+      return 'Loading ' + this.getQueryToken.toUpperCase()
+    },
+    getRangeMessage () {
+      return moment(this.getStart, 'X').format('MMM Do') + ' to ' + moment(this.getEnd, 'X').format('MMM Do')
+    },
     getLoadMessage () {
-      return 'LOADING results for ' + this.getQueryToken.toUpperCase() + ' ' + moment(this.getStart, 'X').format('MMM Do') + ' to ' + moment(this.getEnd, 'X').format('ll')
+      return 'LOADING ' + this.getQueryToken.toUpperCase() + ' ' + moment(this.getStart, 'X').format('MMM Do') + ' to ' + moment(this.getEnd, 'X').format('ll')
     }
   },
 

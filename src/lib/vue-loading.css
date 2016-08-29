@@ -19,7 +19,8 @@
     position: absolute;
     z-index: 1001;
     margin: 0px;
-    padding-top: 20px;
+    padding-top: 16px;
+    width: 350px;
     height: 60px;
     top: 20%;
     left: 50%;
@@ -34,8 +35,11 @@
     transform: translateX(-50%);
 }
 .vue-loading-msg p {
-  padding: 0 35px;
+  padding: 0;
   float: left;
+  width: 250px;
+  text-align: center;
+  line-height: 1.5;
 }
 
 .ring-pulse {
@@ -45,7 +49,7 @@
   width: 28px;
   float: left;
   margin-left: 30px;
-  margin-top: 2px;
+  margin-top: 4px;
   /*
   position: absolute;
   left:20px;
