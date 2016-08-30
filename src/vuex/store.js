@@ -17,7 +17,8 @@ const state = {
   graphWidth: 800,
   graphHeight: 550,
   drawCount: 0,
-  loadStatus: true
+  loadStatus: true,
+  lastEvaluatedKey: ''
 }
 
 const mutations = {
@@ -31,6 +32,15 @@ const mutations = {
 
   INCREMENT (state) {
     state.drawCount = state.drawCount + 1
+  },
+
+  CONFIRM_QUERY (state, queryStr) {
+    console.log('CONFIRM_QUERY', queryStr)
+    state.queryToken = queryStr
+  },
+
+  CLEAR_QUERY_RESULT (state) {
+    state.queryResult = {}
   },
 
   SET_QUERY_RESULT (state, result) {
@@ -48,18 +58,18 @@ const mutations = {
   CONFIRM_TIME_RANGE (state, start, end) {
     state.start = Math.floor(start)
     state.end = Math.floor(end)
-    console.log('STATE.start', state.start)
-    console.log('STATE.end', state.end)
+    // console.log('STATE.start', state.start)
+    // console.log('STATE.end', state.end)
   },
 
   SET_START (state, start) {
     state.start = start
-    console.log('STATE.start', state.start)
+    // console.log('STATE.start', state.start)
   },
 
   SET_END (state, end) {
     state.end = end
-    console.log('STATE.end', state.end)
+    // console.log('STATE.end', state.end)
   }
 }
 

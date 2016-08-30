@@ -3,13 +3,8 @@
 // export const getCount = state => state.count
 import moment from 'moment'
 
-export function getGraphWidth (state) {
-  return state.graphWidth
-}
-
-export function getGraphHeight (state) {
-  return state.graphHeight
-}
+export const getGraphWidth = state => state.graphWidth
+export const getGraphHeight = state => state.graphHeight
 
 export function getDrawCount (state) {
   console.log('getDrawCount')
@@ -30,9 +25,7 @@ export function getFormattedEnd (state) {
   return state.end * 1000
 }
 
-export function getEnd (state) {
-  return state.end
-}
+export const getEnd = state => state.end
 
 export function getQueryToken (state) {
   return state.queryToken

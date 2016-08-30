@@ -32,8 +32,8 @@
         <div class="nav-center">
           <div class="nav-item hero-brand touchable">
             <div class="control has-addons">
-              <input class="input" type="text" placeholder="Track a query" value="hillary">
-              <a id="searchBtn" class="button is-medium is-info">Track Search</a>
+              <input class="input" type="text" placeholder="Track a query" value="hillary" v-model='queryStr'>
+              <a id="searchBtn" class="button is-medium is-info" @click='triggerQuery'>Track Query</a>
             </div>
           </div>
         </div>
@@ -43,10 +43,25 @@
 </template>
 
 <script>
+import { updateQuery } from '../vuex/actions'
+
 export default {
+  data: function () {
+    return {
+      queryStr: ''
+    }
+  },
+
   vuex: {
     getters: {
       sidebar: state => state.sidebar
+    },
+    actions: {
+      updateQuery,
+      triggerQuery: function () {
+        console.log('triggerQuery', this.queryStr)
+        this.updateQuery(this.queryStr)
+      }
     }
   },
 
@@ -101,7 +116,8 @@ input[type=text] {
   // text-indent: -3000px;
   .vue {
     margin-left: 10px;
-    color: #36AC70;
+    // color: #36AC70;
+    color: #FF9800;
   }
   .admin {
     color: #ffffff;

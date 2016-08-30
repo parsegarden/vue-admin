@@ -36,6 +36,7 @@ export default {
   },
 
   ready () {
+    // DISPATCH START_DRAW
     this.performQuery()
   }
 }

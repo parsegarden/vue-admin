@@ -52,9 +52,11 @@ export default {
     let self = this
     window.addEventListener('resize', function () {
       if (self.getQueryResult !== null && self.getQueryResult.count > 0) {
+        // DISPATCH RESIZE
         self.resize()
       }
     })
+    // DISPATCH RESIZE
     this.resize()
   },
 
@@ -103,18 +105,25 @@ export default {
         return
       }
 
-      let months = []
-      let cities = []
       let timeGraph = data['timeGraph']
-
       if (timeGraph == null) {
         console.log('drawGraph', 'EMPTY')
         return
       }
 
+      let cities = []
+      let months = []
       for (let i in timeGraph) {
         cities.push(createGraphNode(i, timeGraph[i]))
+        months = Object.keys(timeGraph[i]).map(function (timestamp) {
+          return timestamp
+        })
       }
+      let totalCount = 0
+      cities[0].values.forEach(function (el, idx, arr) {
+        totalCount += el.value
+      })
+      console.log('drawGraph', 'totalCount', totalCount)
 
       let x = D3.scaleTime().range([0, actualWidth + 30])
       let y = D3.scaleLinear().range([actualHeight, 0])
@@ -123,31 +132,30 @@ export default {
       .x(function (d) { return x(d.date) })
       .y(function (d) { return y(d.value) })
       .extent([[-margin.left, -margin.top], [actualWidth + margin.right, actualHeight + margin.bottom]])
-      // console.log(voronoi)
 
       let line = D3.line()
       .x(function (d) { return x(d.date) })
       .y(function (d) { return y(d.value) })
-      // console.log(line)
 
-      // console.log('MONTHS', months)
-      x.domain(D3.extent(months))
+      let xAxis = D3.axisBottom(x).ticks(10, D3.timeFormat('%a %I%p'))
+      let yAxis = D3.axisLeft(y).ticks(6).tickSize(0)
+
+      // console.log('MONTHS', months, D3.extent(months))
+      let timeRange = D3.extent(months)
+      x.domain([new Date(timeRange[0] * 1000), new Date(timeRange[timeRange.length - 1] * 1000)])
       y.domain([0, D3.max(cities, function (c) { return D3.max(c.values, function (d) { return d.value }) })])
 
-      // let tickEvery = Math.floor(months.length / 3)
-      // console.log('tickEvery', tickEvery)
       svg.append('g')
       .attr('class', 'axis axis--x')
       .attr('transform', 'translate(0,' + actualHeight + ')')
-      // .call(D3.axisBottom(x).ticks(D3.timeHour.every(tickEvery)).tickFormat(D3.timeFormat('%a %I%p')))
-      .call(D3.axisBottom(x).ticks(8).tickFormat(D3.timeFormat('%a %I%p')))
+      .call(xAxis)
 
       svg.selectAll('.tick > text')
       .attr('y', 20)
 
       svg.append('g')
       .attr('class', 'axis axis--y')
-      .call(D3.axisLeft(y).ticks(6))
+      .call(yAxis)
       /*
       .append('text')
       .attr('x', -35)
@@ -247,8 +255,6 @@ export default {
 
       function createGraphNode (name, datum) {
         // console.log('createGraphNode', name, datum)
-
-        if (!months || months.length === 0) months = Object.keys(datum).map(function (timestamp) { return new Date(timestamp * 1000) })
 
         var city = {
           name: name,

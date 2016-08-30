@@ -49,10 +49,10 @@ export default {
       twoWay: true
     },
     startTime: {
-      twoWay: true
+      twoWay: false
     },
     endTime: {
-      twoWay: true
+      twoWay: false
     },
     maxRange: {
       coerce: function (val) {

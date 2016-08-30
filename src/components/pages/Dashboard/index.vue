@@ -7,14 +7,13 @@
           <article class="tile is-child box light">
             <p class="subtitle white is-5">New to Parsegarden?</p>
             <div class="block">
-              <p class="subtitle white is-5">Sign up with your Twitter account</p>
+              <p class="subtitle is-5"><strong class="white">Sign up with Twitter</strong></p>
               <div class="control is-3">
                 <a class="button is-medium" href="#">Sign up</a>
               </div>
             </div>
           </article>
           <article class="tile is-child box">
-            <!--<p><strong>Track Search Queries</strong></p>-->
             <div class="block">
               <p class="title is-5">Track a Twitter query over time</p>
               <p><strong>Discover Patterns</strong></p>
@@ -33,7 +32,7 @@
             <div class="block is-flex">
               <label class="label"># of tweets from</label>
               <div class="control is-horizontal">
-                <mz-datepicker format="M/d/yy" :start-time.sync="getFormattedStart" :end-time.sync="getFormattedEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> 
+                <mz-datepicker format="M/d/yy" :start-time="getFormattedStart" :end-time="getFormattedEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> 
               </div>
             </div>
             <time-graph :width="getGraphWidth" :height="getGraphHeight"></time-graph>
@@ -42,11 +41,22 @@
       </div>
 
       <div class="tile is-ancestor" style="position: relative" v-loading="getLoadStatus" :loading-options="{ queryText: getQueryMessage, rangeText: getRangeMessage }">
-        <div class="tile">
-          <filter-table title="Language" :schema="wordSchema" :collection="getWordCollection"></filter-table>
-          <!--<filter-table title="Hashtags" :schema="tagSchema" :collection="getTagCollection"></filter-table>-->
-          <!--<filter-table title="Users" :schema="userSchema" :collection="getUserCollection"></filter-table>-->
+        <div class="tile is-parent">
+          <article class="tile is-child box">
+            <tabs size="medium" type="boxed">
+              <tab-pane label="Language">
+                <filter-table title="Language" :schema="wordSchema" :collection="getWordCollection"></filter-table>
+              </tab-pane>
+              <tab-pane label="Hashtags">
+                <filter-table title="Hashtags" :schema="tagSchema" :collection="getTagCollection"></filter-table>
+              </tab-pane>
+              <tab-pane label="Users">
+                <filter-table title="Users" :schema="userSchema" :collection="getUserCollection"></filter-table>
+              </tab-pane>
+            </tabs>
+          </article>
         </div>
+
         <div class="tile is-6">
           <tweet-table title="Tweets" :collection="getTweetCollection"></tweet-table>
         </div>
@@ -57,7 +67,7 @@
 </template>
 
 <script>
-import { performQuery, setStart, setEnd, confirmTimeRange } from '../../../vuex/actions'
+import { performQuery, setStart, setEnd, confirmTimeRange, clearQuery } from '../../../vuex/actions'
 import {
   getQueryToken,
   getQueryResult,
@@ -77,6 +87,7 @@ import FilterTable from 'components/FilterTable'
 import TweetTable from 'components/TweetTable'
 import loading from '../../../lib/vue-loading'
 import moment from 'moment'
+import { Tabs, TabPane } from 'vue-bulma-tabs'
 
 export default {
   directives: {
@@ -88,7 +99,9 @@ export default {
     TimeGraph,
     MzDatepicker,
     FilterTable,
-    TweetTable
+    TweetTable,
+    Tabs,
+    TabPane
   },
 
   vuex: {
@@ -107,7 +120,8 @@ export default {
       performQuery,
       setStart,
       setEnd,
-      confirmTimeRange
+      confirmTimeRange,
+      clearQuery
     }
   },
 
@@ -163,7 +177,17 @@ export default {
     let self = this
 
     this.$store.watch(getFormattedStart, function (start) {
-      console.log('WATCH start', start)
+      console.log('WATCH getFormattedStart', start)
+      // DISPATCH CLEAR_QUERY_RESULT
+      self.clearQuery()
+      // DISPATCH START_DRAW
+      self.performQuery()
+    })
+    this.$store.watch(getQueryToken, function (queryStr) {
+      console.log('WATCH getQueryToken', queryStr)
+      // DISPATCH CLEAR_QUERY_RESULT
+      self.clearQuery()
+      // DISPATCH START_DRAW
       self.performQuery()
     })
   }
