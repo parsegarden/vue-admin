@@ -7,7 +7,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="row in collection">
+      <tr v-for="row in collection | limit 130">
         <td>{{ row.token | truncate 25 '...' }}</td>
         <td><a style="padding:0;justify-content:initial" href="#">{{ row.tweetCount }}</a></td>
       </tr>

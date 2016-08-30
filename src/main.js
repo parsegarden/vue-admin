@@ -18,6 +18,7 @@ Vue.use(Truncate)
 import { linky } from './lib/jquery.linky'
 import { twemoji } from './lib/twemoji'
 import moment from 'moment'
+
 var tweetFilter = function (text) {
   // console.log('tweetify', text)
   text = linky(text, {
@@ -28,15 +29,36 @@ var tweetFilter = function (text) {
   });
   return twemoji.parse(text)
 };
-Vue.filter('tweetify', tweetFilter);
+Vue.filter('tweetify', tweetFilter)
+
 var timeFilter = function (timestamp) {
   return moment(timestamp, 'X').fromNow();
 }
-Vue.filter('timify', timeFilter);
+Vue.filter('timify', timeFilter)
+
+var userFilter = o => 'https://twitter.com/intent/user?screen_name='+o.screenName
+Vue.filter('user', userFilter)
+
 var linkFilter = function (o) {
   return 'https://twitter.com/'+o.screenName+'/status/'+o.id;
 }
-Vue.filter('linkify', linkFilter);
+Vue.filter('linkify', linkFilter)
+
+var replyFilter = o => 'https://twitter.com/intent/tweet?in_reply_to='+o.id;
+Vue.filter('reply', replyFilter)
+
+var retweetFilter = function (o) {
+  return 'https://twitter.com/intent/retweet?tweet_id='+o.id;
+}
+Vue.filter('retweet', retweetFilter)
+
+var likeFilter = function (o) {
+  return 'https://twitter.com/intent/like?tweet_id='+o.id;
+}
+Vue.filter('like', likeFilter)
+
+var limitFilter = (arr, limit) => arr.slice(0, limit)
+Vue.filter('limit', limitFilter);
 
 import App from './App'
 import Dashboard from './components/pages/Dashboard/'

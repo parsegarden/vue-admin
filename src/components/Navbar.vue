@@ -10,10 +10,10 @@
           </a>
         </div>
         <div class="nav-center">
-          <a class="nav-item hero-brand touchable" href="#">
-            <!--<img src="../assets/logo.svg" alt="Vue Admin Panel Framework">-->
+          <a class="nav-item hero-brand touchable" href="#" style="width:222px">
+            <img src="../assets/parsegarden.svg" style="max-height:24px">
             <div class="is-hidden-mobile">
-              <p class="title is-3"><span class="vue">Parse</span><strong class="admin">garden</strong></p>
+              <p class="title is-3"><span class="vue">Parse</span><strong class="admin orange">garden</strong></p>
             </div>
           </a>
         </div>
@@ -117,10 +117,13 @@ input[type=text] {
   .vue {
     margin-left: 10px;
     // color: #36AC70;
-    color: #FF9800;
+    color: #ffffff;
   }
   .admin {
     color: #ffffff;
+  }
+  .orange {
+    color: #FF9800;
   }
 }
 
