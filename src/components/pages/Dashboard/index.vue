@@ -35,7 +35,7 @@
                 <mz-datepicker format="M/d/yy" :start-time="getFormattedStart" :end-time="getFormattedEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> 
               </div>
             </div>
-            <time-graph :width="getGraphWidth" :height="getGraphHeight"></time-graph>
+            <time-graph></time-graph>
           </article>
         </div>
       </div>
@@ -67,28 +67,6 @@
 </template>
 
 <script>
-import { performQuery, setStart, setEnd, confirmTimeRange, clearQuery } from '../../../vuex/actions'
-import {
-  getQueryToken,
-  getQueryResult,
-  getFormattedStart,
-  getFormattedEnd,
-  getStart,
-  getEnd,
-  getGraphWidth,
-  getGraphHeight,
-  getLoadStatus
-} from '../../../vuex/getters'
-
-import Chart from 'vue-bulma-chartjs'
-import MzDatepicker from '../../../lib/VueDatepicker'
-import TimeGraph from 'components/TimeGraph'
-import FilterTable from 'components/FilterTable'
-import TweetTable from 'components/TweetTable'
-import loading from '../../../lib/vue-loading'
-import moment from 'moment'
-import { Tabs, TabPane } from 'vue-bulma-tabs'
-
 var stopList = [
   'via',
   'that',
@@ -276,6 +254,35 @@ var stopList = [
   'shows',
   'right'
 ]
+
+import {
+  performQuery,
+  setStart,
+  setEnd,
+  confirmTimeRange,
+  clearQuery
+} from '../../../vuex/actions'
+
+import {
+  getQueryToken,
+  getQueryResult,
+  getFormattedStart,
+  getFormattedEnd,
+  getStart,
+  getEnd,
+  getGraphWidth,
+  getGraphHeight,
+  getLoadStatus
+} from '../../../vuex/getters'
+
+import Chart from 'vue-bulma-chartjs'
+import MzDatepicker from '../../../lib/VueDatepicker'
+import TimeGraph from 'components/TimeGraph'
+import FilterTable from 'components/FilterTable'
+import TweetTable from 'components/TweetTable'
+import loading from '../../../lib/vue-loading'
+import moment from 'moment'
+import { Tabs, TabPane } from 'vue-bulma-tabs'
 
 export default {
   directives: {

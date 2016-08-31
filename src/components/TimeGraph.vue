@@ -18,8 +18,6 @@ export default {
   props: {
     rtime: Number,
     timeout: Boolean,
-    width: Number,
-    height: Number,
     count: Number,
     data: {
       type: Object,
@@ -41,23 +39,16 @@ export default {
     }
   },
 
-  watch: {
-    'width': 'tryDraw',
-    'height': 'tryDraw'
-  },
-
   ready () {
     this.$store.watch(getDrawCount, this.drawGraph)
 
     let self = this
     window.addEventListener('resize', function () {
-      if (self.getQueryResult !== null && self.getQueryResult.count > 0) {
+      if (self.getQueryResult !== null && Object.keys(self.getQueryResult).length > 0) {
         // DISPATCH RESIZE
         self.resize()
       }
     })
-    // DISPATCH RESIZE
-    this.resize()
   },
 
   methods: {
@@ -89,10 +80,12 @@ export default {
     drawGraph () {
       let data = this.getQueryResult
 
-      console.log('drawGraph', this.width, this.height)
+      let currentWidth = document.getElementById('graph').clientWidth + 20
 
-      let actualWidth = this.width - margin.left - margin.right
+      let actualWidth = currentWidth - margin.left - margin.right
       let actualHeight = maxHeight + 80
+
+      console.log('drawGraph', actualWidth, actualHeight)
 
       D3.select('#graph').html('')
       let svg = D3.select('#graph').append('svg')
@@ -137,7 +130,7 @@ export default {
       .x(function (d) { return x(d.date) })
       .y(function (d) { return y(d.value) })
 
-      let xAxis = D3.axisBottom(x).ticks(10, D3.timeFormat('%a %I%p'))
+      let xAxis = D3.axisBottom(x)
       let yAxis = D3.axisLeft(y).ticks(6).tickSize(0)
 
       // console.log('MONTHS', months, D3.extent(months))

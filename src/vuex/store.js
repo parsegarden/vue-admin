@@ -26,8 +26,9 @@ const mutations = {
   // You can make any modifications you want inside this function
 
   RESIZE (state) {
-    state.graphWidth = document.getElementById('graph').clientWidth + 20
-    state.graphHeight = document.getElementById('graph').clientHeight
+    // state.graphWidth = document.getElementById('graph').clientWidth + 20
+    // state.graphHeight = document.getElementById('graph').clientHeight
+    state.drawCount = state.drawCount + 1
   },
 
   INCREMENT (state) {
