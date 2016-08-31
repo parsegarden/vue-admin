@@ -3,7 +3,7 @@
     <navbar></navbar>
     <section class="app-main">
       <div class="container is-fluid is-marginless app-content">
-      <view></view>
+        <view></view>
         <!--<router-view
           class="animated"
           transition="fade"
