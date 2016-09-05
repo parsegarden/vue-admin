@@ -5,24 +5,26 @@
       <div class="tile is-ancestor">
         <div class="tile is-parent is-vertical">
           <article class="tile is-child box light">
-            <p class="subtitle white is-5">New to Parsegarden?</p>
+            <p class="subtitle white is-5" style="padding: 0;">New to Parsegarden?</p>
             <div class="block">
-              <p class="subtitle is-5"><strong class="white">Sign up with Twitter</strong></p>
+              <p class="subtitle is-5" style="padding: 0;"><strong class="white">Sign up with Twitter</strong></p>
               <div class="control is-3">
-                <a class="button is-medium" href="#">Sign up</a>
+                <a class="button is-medium" href="#" style="width: 100%;"><span class="icon"> <i class="fa fa-twitter"></i> </span><span>Sign up</span></a>
               </div>
             </div>
           </article>
           <article class="tile is-child box">
             <div class="block">
               <p class="title is-5">Track a Twitter query over time</p>
+              <p><strong>Over {{ getTotalCount }} tweets indexed</strong></p>
+              <p>Read the most engaging tweets</p>
               <p><strong>Discover Patterns</strong></p>
               <p>Learn the language, hashtags, and influential users</p>
               <p><strong>Discover Content</strong></p>
               <p>Read the most engaging tweets</p>
             </div>
             <div class="control">
-              <a class="button is-medium is-info" href="#">Tutorial</a>
+              <a class="button is-medium is-info" href="#" style="width: 100%;">Tutorial</a>
             </div>
           </article>
         </div>
@@ -30,10 +32,10 @@
         <div class="tile is-parent is-vertical is-9">
           <article class="tile is-child box" style="position: relative" v-loading="getLoadStatus" :loading-options="{ queryText: getQueryMessage, rangeText: getRangeMessage }">
             <div class="block is-flex">
-              <label class="label"># of tweets from</label>
-              <div class="control is-horizontal">
-                <mz-datepicker format="M/d/yy" :start-time="getFormattedStart" :end-time="getFormattedEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> 
-              </div>
+              <h2 class="subtitle"># of tweets found searching for <strong>"{{ getQueryToken }}"</strong> from <strong>{{ getFormattedStart }}</strong> to <strong>{{ getFormattedEnd }}</strong></h2>
+            </div>
+            <div class="block">
+              <progress-bar v-if="getPercentage < 90" :type="'success'" :size="'large'" :value="getPercentage" :max="100" :show-label="true"></progress-bar>
             </div>
             <time-graph></time-graph>
           </article>
@@ -44,8 +46,8 @@
         <div class="tile is-parent">
           <article class="tile is-child box">
             <tabs size="medium" type="boxed">
-              <tab-pane label="Language">
-                <filter-table title="Language" :schema="wordSchema" :collection="getWordCollection"></filter-table>
+              <tab-pane label="Trending Words">
+                <filter-table title="Trending Words" :schema="wordSchema" :collection="getWordCollection"></filter-table>
               </tab-pane>
               <tab-pane label="Hashtags">
                 <filter-table title="Hashtags" :schema="tagSchema" :collection="getTagCollection"></filter-table>
@@ -252,36 +254,40 @@ var stopList = [
   'calls',
   'gave',
   'shows',
-  'right'
+  'right',
+  'wasnt',
+  'arent',
+  'havent'
 ]
 
 import {
   performQuery,
   setStart,
   setEnd,
-  confirmTimeRange,
   clearQuery
 } from '../../../vuex/actions'
 
 import {
   getQueryToken,
   getQueryResult,
-  getFormattedStart,
-  getFormattedEnd,
   getStart,
   getEnd,
-  getGraphWidth,
-  getGraphHeight,
-  getLoadStatus
+  getLoadStatus,
+  getLastTimeKey,
+  getSubToken,
+  getFormattedStart,
+  getFormattedEnd
 } from '../../../vuex/getters'
 
-import Chart from 'vue-bulma-chartjs'
-import MzDatepicker from '../../../lib/VueDatepicker'
 import TimeGraph from 'components/TimeGraph'
 import FilterTable from 'components/FilterTable'
 import TweetTable from 'components/TweetTable'
 import loading from '../../../lib/vue-loading'
+import ProgressBar from '../../../lib/ProgressBar'
+
 import moment from 'moment'
+import numeral from 'numeral'
+import Chart from 'vue-bulma-chartjs'
 import { Tabs, TabPane } from 'vue-bulma-tabs'
 
 export default {
@@ -292,30 +298,28 @@ export default {
   components: {
     Chart,
     TimeGraph,
-    MzDatepicker,
     FilterTable,
     TweetTable,
     Tabs,
-    TabPane
+    TabPane,
+    ProgressBar
   },
 
   vuex: {
     getters: {
       getQueryToken,
       getQueryResult,
-      getFormattedStart,
-      getFormattedEnd,
       getStart,
       getEnd,
-      getGraphWidth,
-      getGraphHeight,
-      getLoadStatus
+      getLoadStatus,
+      getLastTimeKey,
+      getFormattedStart,
+      getFormattedEnd
     },
     actions: {
       performQuery,
       setStart,
       setEnd,
-      confirmTimeRange,
       clearQuery
     }
   },
@@ -331,11 +335,9 @@ export default {
   },
 
   computed: {
-    defaultStart () {
-      return { defaultDate: this.getFormattedStart, enableTime: true }
-    },
-    defaultEnd () {
-      return { defaultDate: this.getFormattedEnd, enableTime: true }
+    getTotalCount () {
+      console.log('getTotalCount', this.getQueryResult.getTotalCount)
+      return numeral(this.getQueryResult.totalCount).format('0,0')
     },
     getWordCollection () {
       return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] !== '@' && obj.token[0] !== '#' && obj.token.length > 3 && stopList.indexOf(obj.token) === -1 }) : []
@@ -350,10 +352,13 @@ export default {
       let outArr = []
       if (this.getQueryResult.tweets !== null && this.getQueryResult.tweets !== undefined) {
         outArr = this.getQueryResult.tweets.map(function (obj) {
-          // obj.formattedText = twemoji.parse(obj.rawText)
           return obj
         })
-        console.log('getTweetCollection', outArr.length)
+        let self = this
+        outArr = outArr.filter(function (obj) {
+          return obj.rawText.toLowerCase().indexOf(self.getQueryToken.toLowerCase()) !== -1
+        })
+        // console.log('getTweetCollection', outArr.length)
       }
       return outArr
     },
@@ -365,24 +370,26 @@ export default {
     },
     getLoadMessage () {
       return 'LOADING ' + this.getQueryToken.toUpperCase() + ' ' + moment(this.getStart, 'X').format('MMM Do') + ' to ' + moment(this.getEnd, 'X').format('ll')
+    },
+    getPercentage () {
+      console.log('getPercentage', this.getStart, this.getEnd, this.getLastTimeKey)
+      let value = Math.floor((this.getStart - this.getLastTimeKey) / (this.getStart - this.getEnd) * 100)
+      return value > 0 ? value : 0
     }
   },
 
   ready () {
     let self = this
 
-    this.$store.watch(getFormattedStart, function (start) {
-      console.log('WATCH getFormattedStart', start)
-      // DISPATCH CLEAR_QUERY_RESULT
-      self.clearQuery()
-      // DISPATCH START_DRAW
-      self.performQuery()
-    })
     this.$store.watch(getQueryToken, function (queryStr) {
       console.log('WATCH getQueryToken', queryStr)
       // DISPATCH CLEAR_QUERY_RESULT
       self.clearQuery()
       // DISPATCH START_DRAW
+      self.performQuery()
+    })
+    this.$store.watch(getSubToken, function (subToken) {
+      console.log('WATCH getSubToken', subToken)
       self.performQuery()
     })
   }

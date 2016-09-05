@@ -3,7 +3,7 @@
 // we can pull those two parameters using the ES6 destructuring feature
 
 export const resize = function ({ dispatch, state }) {
-  dispatch('RESIZE')
+  dispatch('INCREMENT')
 }
 
 export const incrementDrawCount = function ({ dispatch, state }) {
@@ -27,7 +27,7 @@ export const setEnd = function ({ dispatch, state }, end) {
 
 function mergeResults ({ mergedResult, newResult }) {
   
-  console.log('mergeResults', mergedResult.query, newResult.query)
+  console.log('mergeResults', mergedResult.query, newResult.query, mergedResult.totalCount, newResult.totalCount)
 
   // TWEETS
   let outTweets = newResult.tweets
@@ -43,19 +43,19 @@ function mergeResults ({ mergedResult, newResult }) {
       wordLookup[el.token] = el
     })
   }
-  console.log('mergeResults', 'newResult.words', newResult.words)
   newResult.words.forEach(function (el, idx, arr) {
     if (wordLookup[el.token] !== undefined) {
       let mergedWord = wordLookup[el.token]  
       mergedWord.tweetCount +=  el.tweetCount
       mergedWord.retweetCount +=  el.retweetCount
       mergedWord.favoriteCount +=  el.favoriteCount
-      mergedWord.timestamp.concat(el.timestamp)
+      mergedWord.timestamp[el.timestamp] = el.tweetCount
       outWords.push(mergedWord)
     } else {
       outWords.push(el)
     }
   })
+  console.log('mergeResults', 'outWords.length', outWords.length)
 
   // TIMEGRAPH 
   console.log('mergeResults', 'newResult.timeGraph[newResult.query]', newResult.timeGraph[newResult.query])
@@ -64,10 +64,12 @@ function mergeResults ({ mergedResult, newResult }) {
     outTimeGraph = Object.assign(mergedResult.timeGraph[newResult.query], newResult.timeGraph[newResult.query])
   }
   let totalCount = 0
+  let lastTimeKey 
   for (var key in outTimeGraph) {
     totalCount += outTimeGraph[key].length
+    lastTimeKey = key
   }
-  console.log('mergeResults', 'totalCount', totalCount, 'timeSlices', Object.keys(outTimeGraph).length)
+  console.log('mergeResults', 'totalCount', totalCount, 'timeSlices', Object.keys(outTimeGraph).length, 'lastTimeKey', lastTimeKey)
     
   let outObj = {}
 
@@ -76,23 +78,25 @@ function mergeResults ({ mergedResult, newResult }) {
   })
   outWords = outWords.filter(function (val) {
     if (val.tweetCount < totalCount / 4 && 
-      val.timestamp.length < Object.keys(outTimeGraph).length / 2 && 
-      val.timestamp.length > 1) 
+      Object.keys(val.timestamp).length < Object.keys(outTimeGraph).length / 2 && 
+      Object.keys(val.timestamp).length > 1) 
     {
-      console.log(val.token, val.timestamp.length)
+      // console.log(val.token, val.timestamp.length)
       return true
     } else {
       return false
     }
   })
   outWords.sort(function (a, b) {
-   return (b.timestamp.length + b.tweetCount) - (a.timestamp.length + a.tweetCount)
+   return (Object.keys(b.timestamp).length + b.tweetCount) - (Object.keys(a.timestamp).length + a.tweetCount)
   })
 
+  outObj.lastTimeKey = lastTimeKey
   outObj.tweets = outTweets
   outObj.words = outWords
   outObj.timeGraph = {}
   outObj.timeGraph[newResult.query] = outTimeGraph
+  outObj.totalCount = newResult.totalCount
 
   console.log('mergeResults', outObj)
   return outObj
@@ -117,13 +121,26 @@ function queryFn ({ dispatch, state, lastKey }) {
       queryFn({ dispatch, state, lastKey: newLastkey })
     }
 
-    dispatch('SET_QUERY_RESULT', mergeResults({ mergedResult: state.queryResult, newResult: parsed }))
-    dispatch('INCREMENT')
+    if (parsed.subToken.length > 0) {
+      for (let i in parsed.tweets) {
+        // console.log(parsed.tweets[i].rawText)
+      }
+      dispatch('SET_SUB_TOKEN_RESULT', parsed)
+      dispatch('INCREMENT')
+    } else {
+      let outMergedResults = mergeResults({ mergedResult: state.queryResult, newResult: parsed })
+      dispatch('SET_QUERY_RESULT', outMergedResults)
+      dispatch('SET_LAST_TIME_KEY', outMergedResults.lastTimeKey)
+      dispatch('INCREMENT')
+    }
   }
 
   xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
 
   let obj = { query: state.queryToken, start: state.start, end: state.end, lastEvaluatedKey: lastKey }
+  if (state.subToken.length > 0) {
+    obj.subToken = state.subToken
+  }
   console.log('QUERY', obj)
   let queryStr = JSON.stringify(obj)
 
@@ -150,4 +167,11 @@ export const clearQuery = function ({ dispatch, state }) {
 }
 export const updateQuery = function ({ dispatch, state }, queryStr) {
   dispatch('CONFIRM_QUERY', queryStr)
+}
+
+export const addFilter = function ({ dispatch, state }, subToken, ev) {
+}
+export const addGraph = function ({ dispatch, state }, subToken, ev) {
+  ev.preventDefault()
+  dispatch('CONFIRM_SUB_TOKEN_FILTER', subToken)
 }

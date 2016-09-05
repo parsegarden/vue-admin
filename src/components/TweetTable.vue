@@ -2,11 +2,8 @@
   <div class="tile is-parent">
 
     <article class="tile is-child box">
-      <tabs size="medium" type="boxed">
-        <tab-pane label="Tweets"></tab-pane>
-      </tabs>
+      <p class="title is-5" style="color: #69707a; font-weight: normal;">Tweets with <strong style="color: black">"hillary"</strong> from <strong style="color: black">9/3/16</strong> to <strong style="color: black">9/4/16</strong></p>
 
-      <!--<h4 class="title">{{ title }}</h4>-->
       <div class="box" style="margin-bottom:10px;padding:17px" v-for="row in collection">
         <article class="media">
           <!--<div class="media-left">
@@ -56,10 +53,12 @@
 import { Tabs, TabPane } from 'vue-bulma-tabs'
 
 export default {
+
   components: {
     Tabs,
     TabPane
   },
+
   props: {
     title: String,
     collection: {
@@ -70,8 +69,14 @@ export default {
       }
     }
   },
-  computed: {
+
+  vuex: {
+    getters: {
+    },
+    actions: {
+    }
   }
+
 }
 </script>
 

@@ -11,14 +11,18 @@ let now = Math.round(new Date().getTime()/1000)
 const state = {
   menu, // SHORT for 'menu: menu
   queryToken: 'hillary',
-  queryResult: {},
+  queryResult: {
+    totalCount: 33000000
+  },
   start: now - 100000,
   end: now,
-  graphWidth: 800,
-  graphHeight: 550,
   drawCount: 0,
   loadStatus: true,
-  lastEvaluatedKey: ''
+  lastEvaluatedKey: '',
+  lastTimeKey: 0,
+  subToken: '',
+  subTokenResults: {},
+  subTokens: []
 }
 
 const mutations = {
@@ -26,8 +30,6 @@ const mutations = {
   // You can make any modifications you want inside this function
 
   RESIZE (state) {
-    // state.graphWidth = document.getElementById('graph').clientWidth + 20
-    // state.graphHeight = document.getElementById('graph').clientHeight
     state.drawCount = state.drawCount + 1
   },
 
@@ -71,7 +73,22 @@ const mutations = {
   SET_END (state, end) {
     state.end = end
     // console.log('STATE.end', state.end)
+  },
+
+  SET_LAST_TIME_KEY (state, lastTimeKey) {
+    state.lastTimeKey = lastTimeKey
+    console.log('STATE.lastTimeKey', state.lastTimeKey)
+  },
+
+  CONFIRM_SUB_TOKEN_FILTER (state, subToken) {
+    state.subToken = subToken
+    state.subTokens.push(subToken)
+  },
+
+  SET_SUB_TOKEN_RESULT (state, result) {
+    state.subTokenResults[result.subToken] = result
   }
+  
 }
 
 const store = new Vuex.Store({

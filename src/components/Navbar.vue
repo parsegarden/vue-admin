@@ -18,22 +18,25 @@
           </a>
         </div>
         <div class="nav-right is-flex">
-          <div class="control is-grouped nav-item">
-            <p class="control">
-              <a class="button is-medium" href="#">Sign up</a>
-            </p>
-            <p class="control">
-              <a class="button is-medium is-primary" href="#">Login</a>
-            </p>
-          </div>
+          <p class="control nav-item">
+            <a class="button is-medium is-primary" href="#">Login</a>
+          </p>
         </div>
       </nav>
       <nav class="nav">
         <div class="nav-center">
           <div class="nav-item hero-brand touchable">
-            <div class="control has-addons">
-              <input class="input" type="text" placeholder="Track a query" value="hillary" v-model='queryStr'>
-              <a id="searchBtn" class="button is-medium is-info" @click='triggerQuery'>Track Query</a>
+            <div class="control is-grouped">
+              <div class="control is-horizontal">
+                <mz-datepicker format="M/d/yy" :start-time="getMilliStart" :end-time="getMilliEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> 
+              </div>
+              <div class="control has-addons">
+                <input class="input" type="text" placeholder="Track a word" value="hillary" v-model='queryStr'>
+                <a id="searchBtn" class="button is-medium is-info" @click='triggerQuery'>Track a Word</a>
+              </div>
+              <div class="control is-horizontal">
+                <a class="button is-medium">Demo query</a>
+              </div>
             </div>
           </div>
         </div>
@@ -43,7 +46,18 @@
 </template>
 
 <script>
-import { updateQuery } from '../vuex/actions'
+import {
+  performQuery,
+  updateQuery,
+  clearQuery,
+  confirmTimeRange
+} from '../vuex/actions'
+import {
+  getMilliStart,
+  getMilliEnd
+} from '../vuex/getters'
+
+import MzDatepicker from '../lib/VueDatepicker'
 
 export default {
   data: function () {
@@ -54,14 +68,19 @@ export default {
 
   vuex: {
     getters: {
-      sidebar: state => state.sidebar
+      sidebar: state => state.sidebar,
+      getMilliStart,
+      getMilliEnd
     },
     actions: {
       updateQuery,
       triggerQuery: function () {
         console.log('triggerQuery', this.queryStr)
         this.updateQuery(this.queryStr)
-      }
+      },
+      clearQuery,
+      performQuery,
+      confirmTimeRange
     }
   },
 
@@ -69,6 +88,21 @@ export default {
     toggleSidebar () {
       this.sidebar.opened = !this.sidebar.opened
     }
+  },
+
+  components: {
+    MzDatepicker
+  },
+
+  ready () {
+    let self = this
+    this.$store.watch(getMilliStart, function (start) {
+      console.log('WATCH getFormattedStart', start)
+      // DISPATCH CLEAR_QUERY_RESULT
+      self.clearQuery()
+      // DISPATCH START_DRAW
+      self.performQuery()
+    })
   }
 }
 </script>

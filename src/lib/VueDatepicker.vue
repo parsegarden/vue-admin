@@ -43,7 +43,7 @@ export default {
       default: false
     },
     width: {
-      default: 300
+      default: 200
     },
     time: {
       twoWay: true
@@ -514,7 +514,12 @@ export default {
 <style src="./vue.datepicker.css"></style>
 <style scoped>
 input {
-  height: 34px;
+  height: 40px;
   font-size: 18px;  
+  border-radius: 3px;
+  box-shadow: inset 0 1px 2px rgba(17, 17, 17, 0.1);
+}
+.mz-datepicker > i {
+  height: 38px;
 }
 </style>
