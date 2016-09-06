@@ -103,6 +103,25 @@ function mergeResults ({ mergedResult, newResult }) {
 
 }
 
+function userActionFn({ dispatch, state }) {
+
+  console.log('USER_ACTION')
+
+  let xhr = new XMLHttpRequest()
+
+  xhr.open('POST', 'https://sc901zcfbj.execute-api.us-west-2.amazonaws.com/dev/PerformUserAction')
+  xhr.onload = function () {
+    let parsed = JSON.parse(xhr.responseText)
+    console.log('performUserAction', 'onload', 'RESPONSE', parsed)
+  }
+  xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+
+  let obj = {  }
+  let queryStr = JSON.stringify(obj)
+  xhr.send(queryStr)
+
+}
+
 function queryFn ({ dispatch, state, lastKey }) {
 
   console.log('QUERY', lastKey)
@@ -146,6 +165,12 @@ function queryFn ({ dispatch, state, lastKey }) {
 
   xhr.send(queryStr)
 
+}
+
+export const performUserAction = function ({ dispatch, state }) {
+  console.log('performUserAction')
+
+  userActionFn({ dispatch, state })
 }
 
 export const performQuery = function ({ dispatch, state }) {
