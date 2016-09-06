@@ -29,6 +29,8 @@ export const getSubToken = state => state.subToken
 export const getSubTokenResults = state => state.subTokenResults
 export const getSubTokens = state => state.subTokens
 
+export const getStopList = state => state.stopList
+
 const stringify = function (time, format) {
   if (!time) {
     return ''

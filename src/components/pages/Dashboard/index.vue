@@ -17,7 +17,7 @@
             <div class="block">
               <p class="title is-5">Track a Twitter query over time</p>
               <p><strong>Over {{ getTotalCount }} tweets indexed</strong></p>
-              <p>Read the most engaging tweets</p>
+              <br>
               <p><strong>Discover Patterns</strong></p>
               <p>Learn the language, hashtags, and influential users</p>
               <p><strong>Discover Content</strong></p>
@@ -35,7 +35,7 @@
               <h2 class="subtitle"># of tweets found searching for <strong>"{{ getQueryToken }}"</strong> from <strong>{{ getFormattedStart }}</strong> to <strong>{{ getFormattedEnd }}</strong></h2>
             </div>
             <div class="block">
-              <progress-bar v-if="getPercentage < 90" :type="'success'" :size="'large'" :value="getPercentage" :max="100" :show-label="true"></progress-bar>
+              <progress-bar v-if="getPercentage < 88" :type="'success'" :size="'large'" :value="getPercentage" :max="100" :show-label="true"></progress-bar>
             </div>
             <time-graph></time-graph>
           </article>
@@ -69,202 +69,12 @@
 </template>
 
 <script>
-var stopList = [
-  'via',
-  'that',
-  'this',
-  'will',
-  'with',
-  'about',
-  'from',
-  'have',
-  'like',
-  'just',
-  'what',
-  'when',
-  'they',
-  'says',
-  'dont',
-  'your',
-  'only',
-  'would',
-  'said',
-  'cant',
-  'very',
-  'them',
-  'after',
-  'than',
-  'does',
-  'into',
-  'their',
-  'shes',
-  'there',
-  'wont',
-  'isnt',
-  'doesnt',
-  'couldnt',
-  'been',
-  'whats',
-  'sure',
-  'then',
-  'didnt',
-  'whos',
-  'were',
-  'retweet',
-  'theyre',
-  'come',
-  'while',
-  'gets',
-  'because',
-  'thats',
-  'could',
-  'being',
-  'watch',
-  'more',
-  'even',
-  'should',
-  'still',
-  'other',
-  'herself',
-  'against',
-  'think',
-  'want',
-  'give',
-  'took',
-  'over',
-  'sent',
-  'either',
-  'talking',
-  'asked',
-  'totally',
-  'part',
-  'uses',
-  'former',
-  'another',
-  'know',
-  'again',
-  'make',
-  'really',
-  'saying',
-  'thing',
-  'must',
-  'many',
-  'these',
-  'here',
-  'made',
-  'another',
-  'again',
-  'make',
-  'read',
-  'take',
-  'well',
-  'great',
-  'back',
-  'going',
-  'next',
-  'enough',
-  'wants',
-  'ever',
-  'some',
-  'knows',
-  'asks',
-  'good',
-  'probably',
-  'tell',
-  'around',
-  'already',
-  'away',
-  'between',
-  'agree',
-  'theres',
-  'doing',
-  'calling',
-  'held',
-  'people',
-  'news',
-  'under',
-  'mean',
-  'show',
-  'anyone',
-  'youre',
-  'where',
-  'much',
-  'down',
-  'most',
-  'getting',
-  'least',
-  'yeah',
-  'quite',
-  'look',
-  'last',
-  'please',
-  'those',
-  'told',
-  'better',
-  'biggest',
-  'also',
-  'lets',
-  'since',
-  'which',
-  'himself',
-  'before',
-  'behind',
-  'want',
-  'showed',
-  'until',
-  'everyone',
-  'meet',
-  'exactly',
-  'wanted',
-  'rather',
-  'several',
-  'amid',
-  'thinks',
-  'prefer',
-  'describes',
-  'went',
-  'currently',
-  'bring',
-  'actually',
-  'anybody',
-  'hasnt',
-  'best',
-  'needs',
-  'every',
-  'used',
-  'help',
-  'need',
-  'believe',
-  'asking',
-  'called',
-  'making',
-  'less',
-  'cannot',
-  'same',
-  'things',
-  'soon',
-  'makes',
-  'heres',
-  'during',
-  'latest',
-  'gave',
-  'year',
-  'years',
-  'call',
-  'calls',
-  'gave',
-  'shows',
-  'right',
-  'wasnt',
-  'arent',
-  'havent'
-]
-
 import {
   performQuery,
   setStart,
   setEnd,
-  clearQuery
+  clearQuery,
+  performUserAction
 } from '../../../vuex/actions'
 
 import {
@@ -276,7 +86,8 @@ import {
   getLastTimeKey,
   getSubToken,
   getFormattedStart,
-  getFormattedEnd
+  getFormattedEnd,
+  getStopList
 } from '../../../vuex/getters'
 
 import TimeGraph from 'components/TimeGraph'
@@ -314,13 +125,15 @@ export default {
       getLoadStatus,
       getLastTimeKey,
       getFormattedStart,
-      getFormattedEnd
+      getFormattedEnd,
+      getStopList
     },
     actions: {
       performQuery,
       setStart,
       setEnd,
-      clearQuery
+      clearQuery,
+      performUserAction
     }
   },
 
@@ -340,7 +153,8 @@ export default {
       return numeral(this.getQueryResult.totalCount).format('0,0')
     },
     getWordCollection () {
-      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] !== '@' && obj.token[0] !== '#' && obj.token.length > 3 && stopList.indexOf(obj.token) === -1 }) : []
+      let self = this
+      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] !== '@' && obj.token[0] !== '#' && obj.token.length > 3 && self.getStopList.indexOf(obj.token) === -1 }) : []
     },
     getTagCollection () {
       return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] === '#' }) : []
@@ -392,6 +206,8 @@ export default {
       console.log('WATCH getSubToken', subToken)
       self.performQuery()
     })
+
+    this.performUserAction()
   }
 }
 </script>
