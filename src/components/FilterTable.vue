@@ -2,7 +2,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Used with <strong>"hillary"</strong> from <strong>9/3/16</strong> to <strong>9/4/16</strong></th>
+        <th>Used with <strong>"{{ getQueryToken }}"</strong> from <strong>{{ getFormattedStart }}</strong> to <strong>{{ getFormattedEnd }}</strong></th>
         <th># Tweets</th>
         <!--<th>Add Filter</th>-->
         <th>Add to Graph</th>
@@ -28,7 +28,10 @@ import {
   addGraph
 } from '../vuex/actions'
 import {
-  getSubTokens
+  getSubTokens,
+  getQueryToken,
+  getFormattedStart,
+  getFormattedEnd
 } from '../vuex/getters'
 
 export default {
@@ -53,7 +56,10 @@ export default {
 
   vuex: {
     getters: {
-      getSubTokens
+      getSubTokens,
+      getQueryToken,
+      getFormattedStart,
+      getFormattedEnd
     },
     actions: {
       addGraph

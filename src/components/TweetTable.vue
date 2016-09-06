@@ -2,7 +2,7 @@
   <div class="tile is-parent">
 
     <article class="tile is-child box">
-      <p class="title is-5" style="color: #69707a; font-weight: normal;">Tweets with <strong style="color: black">"hillary"</strong> from <strong style="color: black">9/3/16</strong> to <strong style="color: black">9/4/16</strong></p>
+      <p class="title is-5" style="color: #69707a; font-weight: normal;">Tweets with <strong style="color: black">"{{ getQueryToken }}"</strong> from <strong style="color: black">{{ getFormattedStart }}</strong> to <strong style="color: black">{{ getFormattedEnd }}</strong></p>
 
       <div class="box" style="margin-bottom:10px;padding:17px" v-for="row in collection">
         <article class="media">
@@ -50,6 +50,12 @@
 </template>
 
 <script>
+import {
+  getQueryToken,
+  getFormattedStart,
+  getFormattedEnd
+} from '../vuex/getters'
+
 import { Tabs, TabPane } from 'vue-bulma-tabs'
 
 export default {
@@ -72,6 +78,9 @@ export default {
 
   vuex: {
     getters: {
+      getFormattedStart,
+      getFormattedEnd,
+      getQueryToken
     },
     actions: {
     }

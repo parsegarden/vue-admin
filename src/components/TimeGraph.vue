@@ -19,7 +19,7 @@ import {
 import * as D3 from 'd3'
 import moment from 'moment'
 
-let margin = {top: 20, right: 70, bottom: 20, left: 40}
+let margin = {top: 20, right: 60, bottom: 20, left: 40}
 let maxHeight = 220
 let delta = 200
 
@@ -63,6 +63,8 @@ export default {
         self.incrementDrawCount()
       }
     })
+
+    self.incrementDrawCount()
   },
 
   methods: {
@@ -165,7 +167,7 @@ export default {
 
       let xAxis = D3.axisBottom(x)
       let yAxisLeft = D3.axisLeft(y0).ticks(6).tickSize(0)
-      let yAxisRight = D3.axisRight(y1).ticks(6).tickSize(0)
+      let yAxisRight = D3.axisRight(y1).ticks(4).tickSize(0).tickFormat(D3.format('d'))
 
       let maxY0 = D3.max(graphs.slice(0, 1), function (c) { return D3.max(c.values, function (d) { return d.value }) })
       let maxY1 = D3.max(graphs.slice(1), function (c) { return D3.max(c.values, function (d) { return d.value }) })

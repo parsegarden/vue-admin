@@ -34,9 +34,11 @@
                 <input class="input" type="text" placeholder="Track a word" value="hillary" v-model='queryStr'>
                 <a id="searchBtn" class="button is-medium is-info" @click='triggerQuery'>Track a Word</a>
               </div>
+              <!-- move to login nag modal
               <div class="control is-horizontal">
                 <a class="button is-medium">Demo query</a>
               </div>
+              --> 
             </div>
           </div>
         </div>
