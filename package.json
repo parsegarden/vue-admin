@@ -91,6 +91,7 @@
     "function-bind": "^1.0.2",
     "html-webpack-plugin": "^2.x.x",
     "http-proxy-middleware": "^0.17.0",
+    "ignore-loader": "^0.1.1",
     "inject-loader": "^2.0.1",
     "isparta-loader": "^2.0.0",
     "json-loader": "^0.5.4",
