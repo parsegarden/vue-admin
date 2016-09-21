@@ -194,21 +194,21 @@ export default {
       svg.append('g')
       .attr('class', 'axis axis--y')
       .attr('transform', 'translate(' + (actualWidth + 4) + ' , 0)')
-      .style('fill', 'red')
+      .style('stroke', 'red')
       .call(yAxisRight)
 
       svg.selectAll('.tick > text')
       .style('font-size', '12')
 
       svg.append('g')
-      .attr('class', 'cities')
+      .attr('class', 'queryToken')
       .selectAll('path')
       .data(graphs.slice(0, 1))
       .enter().append('path')
       .attr('d', function (d) { d.line = this; return line0(d.values) })
 
       svg.append('g')
-      .attr('class', 'cities')
+      .attr('class', 'subToken')
       .selectAll('path')
       .data(graphs.slice(1))
       .enter().append('path')
@@ -271,14 +271,16 @@ export default {
         let data = d.data
         let isMainToken = data.city.name === mainToken
 
-        D3.select(data.city.line).classed('city--hover', true)
-        // MOVE line to front
-        data.city.line.parentNode.appendChild(data.city.line)
         if (isMainToken) {
+          D3.select(data.city.line).classed('queryToken--hover', true)
           focus.attr('transform', 'translate(' + x(data.date) + ',' + y0(data.value) + ')')
         } else {
+          D3.select(data.city.line).classed('subToken--hover', true)
           focus.attr('transform', 'translate(' + x(data.date) + ',' + y1(data.value) + ')')
         }
+
+        // MOVE line to front
+        data.city.line.parentNode.appendChild(data.city.line)
 
         let translateX = 80
         let translateY = -10
@@ -314,7 +316,8 @@ export default {
 
       function mouseout (d) {
         d = d.data
-        D3.select(d.city.line).classed('city--hover', false)
+        D3.select(d.city.line).classed('queryToken--hover', false)
+        D3.select(d.city.line).classed('subToken--hover', false)
         focus.attr('transform', 'translate(-100,-100)')
       }
 
@@ -361,7 +364,7 @@ export default {
   display: none;
 }
 
-.cities {
+.queryToken {
   fill: none;
   stroke: #aaa;
   stroke-linejoin: round;
@@ -369,8 +372,21 @@ export default {
   stroke-width: 1px;
 }
 
-.city--hover {
+.subToken {
+  fill: none;
+  stroke: red;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 1px;
+}
+
+.queryToken--hover {
   stroke: #000;
+  stroke-width: 3px;
+}
+
+.subToken--hover {
+  stroke: red;
   stroke-width: 3px;
 }
 
