@@ -10,13 +10,13 @@
     </thead>
     <tbody>
       <tr v-for="row in collection | limit 130">
-        <td><a style="padding:0;justify-content:initial" href="#" :style="{color: isActive(row.token)}"> {{ row.token | truncate 25 '...' }}</a></td>
+        <td><a style="padding:0;justify-content:initial" href="#" :style="{color: isActive(row.subToken)}"> {{ row.subToken | truncate 25 '...' }}</a></td>
         <td><a style="padding:0;justify-content:initial" href="#">{{ row.tweetCount }}</a></td>
         <!--<td class="is-icon">
-          <a style="padding:3px;justify-content:initial" href="#"><i class="fa fa-plus" style="font-size:8px" :class="{'red': isActive(row.token)}"></i><i class="fa fa-filter" :class="{'red': isActive(row.token)}"></i></a>
+          <a style="padding:3px;justify-content:initial" href="#"><i class="fa fa-plus" style="font-size:8px" :class="{'red': isActive(row.subToken)}"></i><i class="fa fa-filter" :class="{'red': isActive(row.subToken)}"></i></a>
         </td>-->
         <td class="is-icon">
-          <a @click="addGraph(row.token, $event)" style="padding:3px;justify-content:initial" href="#"><i class="fa fa-plus" style="font-size:8px" :class="{'red': isActive(row.token)}"></i><i class="fa fa-line-chart" :class="{'red': isActive(row.token)}"></i></a>
+          <a @click="addGraph(row.subToken, $event)" style="padding:3px;justify-content:initial" href="#"><i class="fa fa-plus" style="font-size:8px" :class="{'red': isActive(row.subToken)}"></i><i class="fa fa-line-chart" :class="{'red': isActive(row.subToken)}"></i></a>
         </td>
       </tr>
     </tbody>

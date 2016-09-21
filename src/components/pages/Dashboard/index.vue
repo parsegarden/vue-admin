@@ -74,7 +74,8 @@ import {
   setStart,
   setEnd,
   clearQuery,
-  performUserAction
+  performRequestTokenAction,
+  performAuthTokenAction
 } from '../../../vuex/actions'
 
 import {
@@ -133,7 +134,8 @@ export default {
       setStart,
       setEnd,
       clearQuery,
-      performUserAction
+      performRequestTokenAction,
+      performAuthTokenAction
     }
   },
 
@@ -154,13 +156,14 @@ export default {
     },
     getWordCollection () {
       let self = this
-      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] !== '@' && obj.token[0] !== '#' && obj.token.length > 3 && self.getStopList.indexOf(obj.token) === -1 }) : []
+      console.log('getWordCollection', this.getQueryResult)
+      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.subToken[0] !== '@' && obj.subToken[0] !== '#' && obj.subToken.length > 3 && self.getStopList.indexOf(obj.subToken) === -1 }) : []
     },
     getTagCollection () {
-      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] === '#' }) : []
+      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.subToken[0] === '#' }) : []
     },
     getUserCollection () {
-      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.token[0] === '@' }) : []
+      return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.subToken[0] === '@' }) : []
     },
     getTweetCollection () {
       let outArr = []
@@ -207,7 +210,11 @@ export default {
       self.performQuery()
     })
 
-    this.performUserAction()
+    if (location.search.trim().length === 0) {
+      this.performRequestTokenAction()
+    } else {
+      this.performAuthTokenAction()
+    }
   }
 }
 </script>

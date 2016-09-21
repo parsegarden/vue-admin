@@ -18,7 +18,7 @@
                 <a class="level-item" :href="row | user" target="_blank" style="margin-right:10px">
                   <strong style="color:#1fc8db">{{{ '@'+row.screenName }}}</strong> 
                 </a>
-                <p class="time" style="display:inline;width:140px">{{ row.timestamp | timify }}</p>
+                <p class="time" style="display:inline;width:140px">{{ row.createdAtUnix | timify }}</p>
                 <br>
                 <p style="margin-top:4px">{{{ row.rawText | tweetify }}}</p>
               </div>

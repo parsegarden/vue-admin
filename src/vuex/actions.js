@@ -40,42 +40,56 @@ function mergeResults ({ mergedResult, newResult }) {
   let outWords = []
   if (mergedResult.words !== undefined) {
     mergedResult.words.forEach(function (el, idx, arr) {
-      wordLookup[el.token] = el
+      wordLookup[el.subToken] = el
     })
   }
   newResult.words.forEach(function (el, idx, arr) {
-    if (wordLookup[el.token] !== undefined) {
-      let mergedWord = wordLookup[el.token]  
-      mergedWord.tweetCount +=  el.tweetCount
-      mergedWord.retweetCount +=  el.retweetCount
-      mergedWord.favoriteCount +=  el.favoriteCount
-      mergedWord.timestamp[el.timestamp] = el.tweetCount
-      outWords.push(mergedWord)
-    } else {
-      outWords.push(el)
+    var mergedWord = {
+      subToken: el.subToken,
+      tweetCount: 0,
+      retweetCount: 0,
+      favoriteCount: 0,
+      timestamp: {}
     }
+
+    if (wordLookup[el.subToken] !== undefined) {
+      mergedWord = wordLookup[el.subToken]  
+    }
+
+    for (var key in el.roundedTokenCounts) {
+      mergedWord.tweetCount +=  el.roundedTokenCounts[key].tweetCount
+      mergedWord.retweetCount +=  el.roundedTokenCounts[key].retweetCount
+      mergedWord.favoriteCount += el.roundedTokenCounts[key].favoriteCount
+      mergedWord.timestamp[key] = el.roundedTokenCounts[key].tweetCount
+    }
+
+    outWords.push(mergedWord)
   })
+  console.log('mergeResults', 'outWords', outWords)
   console.log('mergeResults', 'outWords.length', outWords.length)
 
   // TIMEGRAPH 
-  console.log('mergeResults', 'newResult.timeGraph[newResult.query]', newResult.timeGraph[newResult.query])
+  //console.log('mergeResults', 'newResult.timeGraph[newResult.query]', newResult.timeGraph[newResult.query])
   let outTimeGraph = newResult.timeGraph[newResult.query]
   if (mergedResult.timeGraph !== undefined) { 
     outTimeGraph = Object.assign(mergedResult.timeGraph[newResult.query], newResult.timeGraph[newResult.query])
   }
-  let totalCount = 0
+  var totalCount = 0
   let lastTimeKey 
-  for (var key in outTimeGraph) {
-    totalCount += outTimeGraph[key].length
-    lastTimeKey = key
+  for (var key in outTimeGraph) { 
+    totalCount += outTimeGraph[key].length 
+    lastTimeKey = key 
   }
-  console.log('mergeResults', 'totalCount', totalCount, 'timeSlices', Object.keys(outTimeGraph).length, 'lastTimeKey', lastTimeKey)
+  //console.log('mergeResults', 'totalCount', totalCount, 'timeSlices', Object.keys(outTimeGraph).length, 'lastTimeKey', lastTimeKey)
+  console.log('mergeResults', 'outTimeGraph', outTimeGraph)
+  console.log('mergeResults', 'outTimeGraph.length', Object.keys(outTimeGraph).length)
     
   let outObj = {}
 
   outTweets.sort(function (a, b) {
    return ((b.retweetCount * 3) + b.favoriteCount) - ((a.retweetCount * 3) + a.favoriteCount)
   })
+  console.log('outWords[0]', outWords[0])
   outWords = outWords.filter(function (val) {
     if (val.tweetCount < totalCount / 4 && 
       Object.keys(val.timestamp).length < Object.keys(outTimeGraph).length / 2 && 
@@ -103,28 +117,41 @@ function mergeResults ({ mergedResult, newResult }) {
 
 }
 
-function userActionFn({ dispatch, state }) {
+function urlParam(name) {
+  var results = new RegExp("[\?&]" + name + "=([^&#]*)").exec(window.location.href);
+  return results[1] || 0;
+}
 
-  console.log('USER_ACTION')
+function userActionFn({ dispatch, state, type, token, verifier }) {
+
+  console.log('USER_ACTION', type, 'REQUEST')
 
   let xhr = new XMLHttpRequest()
 
   xhr.open('POST', 'https://sc901zcfbj.execute-api.us-west-2.amazonaws.com/dev/PerformUserAction')
   xhr.onload = function () {
     let parsed = JSON.parse(xhr.responseText)
-    console.log('performUserAction', 'onload', 'RESPONSE', parsed)
+    console.log('USER_ACTION', type, 'onload', 'RESPONSE', parsed)
+    if (type === 'request_token') {
+      window.location = parsed.authorizationUrl;
+    }
   }
   xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
 
-  let obj = {  }
+  let obj = { type: type, token: token, verifier: verifier }
   let queryStr = JSON.stringify(obj)
-  xhr.send(queryStr)
+  console.log('USER_ACTION', 'REQUEST', 'queryStr', queryStr)
+  if (type === 'request_token') {
+    xhr.send(queryStr)
+  } else {
+    xhr.send(queryStr)
+  }
 
 }
 
 function queryFn ({ dispatch, state, lastKey }) {
 
-  console.log('QUERY', lastKey)
+  //console.log('QUERY', 'REQUEST', lastKey)
 
   let xhr = new XMLHttpRequest()
 
@@ -160,17 +187,29 @@ function queryFn ({ dispatch, state, lastKey }) {
   if (state.subToken.length > 0) {
     obj.subToken = state.subToken
   }
-  console.log('QUERY', obj)
+  console.log('QUERY', 'REQUEST', obj)
   let queryStr = JSON.stringify(obj)
 
   xhr.send(queryStr)
 
 }
 
-export const performUserAction = function ({ dispatch, state }) {
-  console.log('performUserAction')
+export const performRequestTokenAction = function ({ dispatch, state }) {
+  console.log('performRequestTokenAction')
 
-  userActionFn({ dispatch, state })
+  let type = 'request_token'
+  let token = ''
+  let verifier = ''
+  userActionFn({ dispatch, state, type, token, verifier })
+}
+
+export const performAuthTokenAction = function ({ dispatch, state }) {
+  console.log('performAuthTokenAction')
+
+  let type = 'auth_token'
+  let token = urlParam('oauth_token')
+  let verifier = urlParam('oauth_verifier')
+  userActionFn({ dispatch, state, type, token, verifier })
 }
 
 export const performQuery = function ({ dispatch, state }) {
