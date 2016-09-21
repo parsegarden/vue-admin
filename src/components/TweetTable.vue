@@ -2,7 +2,12 @@
   <div class="tile is-parent">
 
     <article class="tile is-child box">
-      <p class="title is-5" style="color: #69707a; font-weight: normal;">Tweets with <strong style="color: black">"{{ getQueryToken }}"</strong> from <strong style="color: black">{{ getFormattedStart }}</strong> to <strong style="color: black">{{ getFormattedEnd }}</strong></p>
+      <p class="title is-5" style="color: #69707a; font-weight: normal;">Popular Tweets with <strong style="color: black">"{{ getQueryToken }}"</strong> from <strong style="color: black">{{ getFormattedStart }}</strong> to <strong style="color: black">{{ getFormattedEnd }}</strong></p>
+
+      <div class="block">
+        <h2 class="subtitle" style="float: left; margin:0 8px; line-height: 30px">+</h2>
+        <a v-for="obj in getSubTokenResults" @click="toggleSubToken(obj.subToken, $event)" class="button is-info is-active" :class="getSubTokens[obj.subToken] ? '' : 'is-outlined'" style="margin: 0 6px 4px 0">{{ obj.subToken }}</a>
+      </div>
 
       <div class="box" style="margin-bottom:10px;padding:17px" v-for="row in collection">
         <article class="media">
@@ -53,8 +58,13 @@
 import {
   getQueryToken,
   getFormattedStart,
-  getFormattedEnd
+  getFormattedEnd,
+  getSubTokenResults,
+  getSubTokens
 } from '../vuex/getters'
+import {
+  toggleSubToken
+} from '../vuex/actions'
 
 import { Tabs, TabPane } from 'vue-bulma-tabs'
 
@@ -80,9 +90,12 @@ export default {
     getters: {
       getFormattedStart,
       getFormattedEnd,
-      getQueryToken
+      getQueryToken,
+      getSubTokenResults,
+      getSubTokens
     },
     actions: {
+      toggleSubToken
     }
   }
 

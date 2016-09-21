@@ -27,7 +27,7 @@ export const setEnd = function ({ dispatch, state }, end) {
 
 function mergeResults ({ mergedResult, newResult }) {
   
-  console.log('mergeResults', mergedResult.query, newResult.query, mergedResult.totalCount, newResult.totalCount)
+  console.log('INVOKE', 'mergeResults', mergedResult.query, newResult.query, mergedResult.totalCount, newResult.totalCount)
 
   // TWEETS
   let outTweets = newResult.tweets
@@ -65,11 +65,11 @@ function mergeResults ({ mergedResult, newResult }) {
 
     outWords.push(mergedWord)
   })
-  console.log('mergeResults', 'outWords', outWords)
+  // console.log('mergeResults', 'outWords', outWords)
   console.log('mergeResults', 'outWords.length', outWords.length)
 
   // TIMEGRAPH 
-  //console.log('mergeResults', 'newResult.timeGraph[newResult.query]', newResult.timeGraph[newResult.query])
+  // console.log('mergeResults', 'newResult.timeGraph[newResult.query]', newResult.timeGraph[newResult.query])
   let outTimeGraph = newResult.timeGraph[newResult.query]
   if (mergedResult.timeGraph !== undefined) { 
     outTimeGraph = Object.assign(mergedResult.timeGraph[newResult.query], newResult.timeGraph[newResult.query])
@@ -80,8 +80,8 @@ function mergeResults ({ mergedResult, newResult }) {
     totalCount += outTimeGraph[key].length 
     lastTimeKey = key 
   }
-  //console.log('mergeResults', 'totalCount', totalCount, 'timeSlices', Object.keys(outTimeGraph).length, 'lastTimeKey', lastTimeKey)
-  console.log('mergeResults', 'outTimeGraph', outTimeGraph)
+  // console.log('mergeResults', 'totalCount', totalCount, 'timeSlices', Object.keys(outTimeGraph).length, 'lastTimeKey', lastTimeKey)
+  // console.log('mergeResults', 'outTimeGraph', outTimeGraph)
   console.log('mergeResults', 'outTimeGraph.length', Object.keys(outTimeGraph).length)
     
   let outObj = {}
@@ -158,19 +158,17 @@ function queryFn ({ dispatch, state, lastKey }) {
   xhr.open('POST', 'https://sc901zcfbj.execute-api.us-west-2.amazonaws.com/dev/PerformActiveQuery')
   xhr.onload = function () {
     let parsed = JSON.parse(xhr.responseText)
-    console.log('performQuery', 'onload', 'RESPONSE', parsed)
-    console.log('performQuery', 'onload', 'count', parsed.count,'timeGraph.length', Object.keys(parsed.timeGraph[state.queryToken]).length)
+    console.log('QUERY', 'RESPONSE', parsed)
+    console.log('QUERY', 'RESPONSE', 'count', parsed.count,'timeGraph.length', Object.keys(parsed.timeGraph[state.queryToken]).length)
 
     if (parsed.lastEvaluatedKey) {
       let newLastkey = parsed.lastEvaluatedKey
-      console.log('performQuery', 'onload', 'lastEvaluatedKey', newLastkey)
+      console.log('QUERY', 'RESPONSE', 'lastEvaluatedKey', newLastkey)
       queryFn({ dispatch, state, lastKey: newLastkey })
     }
 
     if (parsed.subToken.length > 0) {
-      for (let i in parsed.tweets) {
-        // console.log(parsed.tweets[i].rawText)
-      }
+      console.log('QUERY', 'RESPONSE', 'parsed.tweets.length', parsed.tweets.length)
       dispatch('SET_SUB_TOKEN_RESULT', parsed)
       dispatch('INCREMENT')
     } else {
@@ -204,7 +202,7 @@ export const performRequestTokenAction = function ({ dispatch, state }) {
 }
 
 export const performAuthTokenAction = function ({ dispatch, state }) {
-  console.log('performAuthTokenAction')
+  console.log('INVOKE', 'performAuthTokenAction')
 
   let type = 'auth_token'
   let token = urlParam('oauth_token')
@@ -215,14 +213,14 @@ export const performAuthTokenAction = function ({ dispatch, state }) {
 export const performQuery = function ({ dispatch, state }) {
   dispatch('START_DRAW')
 
-  console.log('performQuery', 'FROM', new Date(state.start*1000), 'TO', new Date(state.end*1000))
+  console.log('INVOKE', 'performQuery', 'FROM', new Date(state.start*1000), 'TO', new Date(state.end*1000))
 
   let lastKey = ''
   queryFn({ dispatch, state, lastKey })
 }
 
 export const finishDraw = function({ dispatch, state }) {
-  console.log('finishDraw')
+  console.log('INVOKE', 'finishDraw')
   dispatch('FINISH_DRAW')
 }
 
@@ -238,4 +236,11 @@ export const addFilter = function ({ dispatch, state }, subToken, ev) {
 export const addGraph = function ({ dispatch, state }, subToken, ev) {
   ev.preventDefault()
   dispatch('CONFIRM_SUB_TOKEN_FILTER', subToken)
+}
+
+export const toggleSubToken = function({ dispatch, state }, subToken, ev) {
+  console.log('INVOKE', 'toggleSubToken', subToken)
+  ev.preventDefault()
+  dispatch('CONFIRM_SUB_TOKEN_TOGGLE', subToken)
+  dispatch('INCREMENT')
 }

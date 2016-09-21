@@ -35,6 +35,10 @@
               <h2 class="subtitle"># of tweets found searching for <strong>"{{ getQueryToken }}"</strong> from <strong>{{ getFormattedStart }}</strong> to <strong>{{ getFormattedEnd }}</strong></h2>
             </div>
             <div class="block">
+              <h2 class="subtitle" style="float: left; margin:0 8px; line-height: 30px">+</h2>
+              <a v-for="obj in getSubTokenResults" @click="toggleSubToken(obj.subToken, $event)" class="button is-info is-active" :class="getSubTokens[obj.subToken] ? '' : 'is-outlined'" style="margin: 0 6px 4px 0">{{ obj.subToken }}</a>
+            </div>
+            <div class="block">
               <progress-bar v-if="getPercentage < 88" :type="'success'" :size="'large'" :value="getPercentage" :max="100" :show-label="true"></progress-bar>
             </div>
             <time-graph></time-graph>
@@ -66,6 +70,8 @@
 
     </div>
   </div>
+
+  <!--<div class="messages"><div class="message-box animated bounce-down-transition" transition-mode="in-out"> <article class="message is-success"> <div class="message-header"> <button class="delete touchable"></button> <span class="icon"> <i class="fa fa-check-circle"></i> </span>  </div> <div class="message-body">Success lorem ipsum dolor sit amet, consectetur adipiscing elit lorem ipsum dolor sit amet, consectetur adipiscing elit</div> </article> </div></div>-->
 </template>
 
 <script>
@@ -75,7 +81,8 @@ import {
   setEnd,
   clearQuery,
   performRequestTokenAction,
-  performAuthTokenAction
+  performAuthTokenAction,
+  toggleSubToken
 } from '../../../vuex/actions'
 
 import {
@@ -86,6 +93,8 @@ import {
   getLoadStatus,
   getLastTimeKey,
   getSubToken,
+  getSubTokens,
+  getSubTokenResults,
   getFormattedStart,
   getFormattedEnd,
   getStopList
@@ -101,6 +110,24 @@ import moment from 'moment'
 import numeral from 'numeral'
 import Chart from 'vue-bulma-chartjs'
 import { Tabs, TabPane } from 'vue-bulma-tabs'
+import Vue from 'vue'
+import Message from 'vue-bulma-message'
+
+const MessageComponent = Vue.extend(Message)
+
+const openMessage = (propsData = {
+  title: '',
+  message: '',
+  type: '',
+  direction: '',
+  duration: 1500,
+  container: '.messages'
+}) => {
+  return new MessageComponent({
+    el: document.createElement('div'),
+    propsData
+  })
+}
 
 export default {
   directives: {
@@ -127,7 +154,9 @@ export default {
       getLastTimeKey,
       getFormattedStart,
       getFormattedEnd,
-      getStopList
+      getStopList,
+      getSubTokenResults,
+      getSubTokens
     },
     actions: {
       performQuery,
@@ -135,7 +164,8 @@ export default {
       setEnd,
       clearQuery,
       performRequestTokenAction,
-      performAuthTokenAction
+      performAuthTokenAction,
+      toggleSubToken
     }
   },
 
@@ -151,12 +181,12 @@ export default {
 
   computed: {
     getTotalCount () {
-      console.log('getTotalCount', this.getQueryResult.getTotalCount)
+      // console.log('getTotalCount', this.getQueryResult.getTotalCount)
       return numeral(this.getQueryResult.totalCount).format('0,0')
     },
     getWordCollection () {
       let self = this
-      console.log('getWordCollection', this.getQueryResult)
+      // console.log('getWordCollection', this.getQueryResult)
       return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.subToken[0] !== '@' && obj.subToken[0] !== '#' && obj.subToken.length > 3 && self.getStopList.indexOf(obj.subToken) === -1 }) : []
     },
     getTagCollection () {
@@ -189,9 +219,21 @@ export default {
       return 'LOADING ' + this.getQueryToken.toUpperCase() + ' ' + moment(this.getStart, 'X').format('MMM Do') + ' to ' + moment(this.getEnd, 'X').format('ll')
     },
     getPercentage () {
-      console.log('getPercentage', this.getStart, this.getEnd, this.getLastTimeKey)
+      console.log('INVOKE', 'Dashboard/index', 'getPercentage', this.getStart, this.getEnd, this.getLastTimeKey)
       let value = Math.floor((this.getStart - this.getLastTimeKey) / (this.getStart - this.getEnd) * 100)
       return value > 0 ? value : 0
+    }
+  },
+
+  methods: {
+    openMaxMessage () {
+      openMessage({
+        title: 'Maximum # of subgraphs is 8',
+        message: 'The screen is getting crowded! At the moment, only 8 subgraphs can be displayed at a time, sorry!',
+        type: 'warning',
+        duration: 0,
+        showCloseButton: true
+      })
     }
   },
 
@@ -206,7 +248,7 @@ export default {
       self.performQuery()
     })
     this.$store.watch(getSubToken, function (subToken) {
-      console.log('WATCH getSubToken', subToken)
+      console.log('WATCH', 'getSubToken', subToken, 'TRIGGER QUERY')
       self.performQuery()
     })
 

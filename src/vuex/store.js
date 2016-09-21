@@ -22,7 +22,7 @@ const state = {
   lastTimeKey: 0,
   subToken: '',
   subTokenResults: {},
-  subTokens: [],
+  subTokens: {},
   stopList: [
     'via',
     'that',
@@ -277,12 +277,18 @@ const mutations = {
   },
 
   CONFIRM_SUB_TOKEN_FILTER (state, subToken) {
+    // console.log('INVOKE', 'CONFIRM_SUB_TOKEN_FILTER', subToken)
     state.subToken = subToken
-    state.subTokens.push(subToken)
+    Vue.set(state.subTokens, subToken, true)
+  },
+
+  CONFIRM_SUB_TOKEN_TOGGLE (state, subToken) {
+    Vue.set(state.subTokens, subToken, !state.subTokens[subToken])
+    console.log('INVOKE', 'CONFIRM_SUB_TOKEN_TOGGLE', state.subTokens)
   },
 
   SET_SUB_TOKEN_RESULT (state, result) {
-    state.subTokenResults[result.subToken] = result
+    Vue.set(state.subTokenResults, result.subToken, result)
   }
   
 }

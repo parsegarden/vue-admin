@@ -9,7 +9,8 @@ import {
   getSubTokenResults,
   getQueryToken,
   getMilliStart,
-  getMilliEnd
+  getMilliEnd,
+  getSubTokens
 } from '../vuex/getters'
 import {
   incrementDrawCount,
@@ -49,7 +50,8 @@ export default {
       getSubTokenResults,
       getQueryToken,
       getMilliStart,
-      getMilliEnd
+      getMilliEnd,
+      getSubTokens
     }
   },
 
@@ -94,8 +96,19 @@ export default {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
     },
     drawGraph () {
+      console.log('INVOKE', 'TimeGraph', 'drawGraph')
+
       let data = this.getQueryResult
-      let subTokenData = this.getSubTokenResults
+      let subTokens = this.getSubTokens
+      let origSubTokenData = this.getSubTokenResults
+      let subTokenData = {}
+      for (let subTokenStr in subTokens) {
+        if (subTokens[subTokenStr]) {
+          subTokenData[subTokenStr] = origSubTokenData[subTokenStr]
+        }
+      }
+
+      console.log('MIDDLE', 'TimeGraph', 'drawGraph', subTokenData)
 
       let currentWidth = document.getElementById('graph').clientWidth + 20
 
@@ -123,7 +136,7 @@ export default {
       let timestamps = []
       let mainToken = ''
       for (let i in timeGraph) {
-        console.log('drawGraph', 'token', i)
+        // console.log('drawGraph', 'token', i)
         mainToken = i
         timestamps = Object.keys(timeGraph[i]).map(function (timestamp) {
           return timestamp
@@ -131,12 +144,12 @@ export default {
         graphs.push(createGraphNode(i, timeGraph[i]))
 
         for (let j in subTokenData) {
-          console.log('drawGraph', 'subToken', j)
+          // console.log('drawGraph', 'subToken', j)
           let subTokenTimeGraph = subTokenData[j]['timeGraph']
           if (subTokenTimeGraph == null) {
             console.log('drawGraph', 'subTokenTimeGraph', 'EMPTY')
           }
-          console.log('drawGraph', 'subTokenTimeGraph', subTokenTimeGraph)
+          // console.log('drawGraph', 'subTokenTimeGraph', subTokenTimeGraph)
 
           graphs.push(createGraphNode(j, subTokenTimeGraph[i]))
         }
@@ -145,9 +158,9 @@ export default {
       graphs[0].values.forEach(function (el, idx, arr) {
         totalCount += el.value
       })
-      console.log('drawGraph', 'totalCount', totalCount)
+      // console.log('drawGraph', 'totalCount', totalCount)
 
-      console.log('drawGraph', 'graphs', graphs)
+      // console.log('drawGraph', 'graphs', graphs)
 
       let x = D3.scaleTime().range([0, actualWidth + 0])
       let y0 = D3.scaleLinear().range([actualHeight, 0])
@@ -155,7 +168,7 @@ export default {
 
       let voronoi0 = D3.voronoi()
       .x(function (d) { return x(d.date) })
-      .y(function (d) { return d.city.name === mainToken ? y0(d.value) : y1(d.alteredValue) })
+      .y(function (d) { return d.token.name === mainToken ? y0(d.alteredValue) : y1(d.alteredValue) })
       .extent([[-margin.left, -margin.top], [actualWidth + margin.right, actualHeight + margin.bottom]])
 
       let line0 = D3.line()
@@ -176,7 +189,7 @@ export default {
       x.domain([new Date(timeRange[0] * 1000), new Date(timeRange[timeRange.length - 1] * 1000)])
       y0.domain([0, maxY0])
       y1.domain([0, maxY1])
-      console.log('START', 'drawGraph', this.getMilliStart, this.getMilliEnd, maxY0, maxY1)
+      // console.log('START', 'drawGraph', this.getMilliStart, this.getMilliEnd, maxY0, maxY1)
 
       svg.append('g')
       .attr('class', 'axis axis--x')
@@ -232,22 +245,30 @@ export default {
       .attr('class', 'voronoi')
 
       let points = D3.merge(graphs.map(function (d) { return d.values }))
-      console.log('voronoi', points)
+      // console.log('voronoi', points)
       let redundantPoints = []
       for (let i in points) {
-        // console.log('voronoi', +points[i].date, points[i].value)
         points[i].alteredValue = points[i].value
         for (let j in redundantPoints) {
-          if (redundantPoints[j][0] === +points[i].date && redundantPoints[j][1] === points[i].value) {
-            console.log('redundant', points[i])
-            points[i].alteredValue += 0.2
+          if (mainToken === points[i].token.name && redundantPoints[j][0] === +points[i].date && redundantPoints[j][1] === y0(points[i].value)) {
+            // console.log('redundant', points[i], points[i].token.name)
+            points[i].alteredValue -= 0.2
+          } else if (redundantPoints[j][0] === +points[i].date && redundantPoints[j][1] === y1(points[i].value)) {
+            // console.log('redundant', points[i], points[i].token.name)
+            points[i].alteredValue -= 0.2
           }
         }
-        redundantPoints.push([+points[i].date, points[i].alteredValue])
+        if (mainToken === points[i].token.name) {
+          // console.log('voronoi', 'QUERY', points[i].token.name, +points[i].date, points[i].value, y0(points[i].value))
+          redundantPoints.push([+points[i].date, y0(points[i].alteredValue)])
+        } else {
+          // console.log('voronoi', points[i].token.name, +points[i].date, points[i].value, y1(points[i].value))
+          redundantPoints.push([+points[i].date, y1(points[i].alteredValue)])
+        }
       }
 
       let polygons = voronoi0.polygons(points)
-      console.log('voronoi', polygons.length)
+      // console.log('voronoi', polygons.length)
 
       let self = this
 
@@ -259,7 +280,7 @@ export default {
       .on('mouseover', mouseover)
       .on('mouseout', mouseout)
 
-      console.log(voronoiGroup.selectAll('.voronoi path').size())
+      // console.log(voronoiGroup.selectAll('.voronoi path').size())
 
       function click (d) {
         console.log('GRAPH', 'click =>', d.tweetIds)
@@ -269,18 +290,18 @@ export default {
 
       function mouseover (d) {
         let data = d.data
-        let isMainToken = data.city.name === mainToken
+        let isMainToken = data.token.name === mainToken
 
         if (isMainToken) {
-          D3.select(data.city.line).classed('queryToken--hover', true)
+          D3.select(data.token.line).classed('queryToken--hover', true)
           focus.attr('transform', 'translate(' + x(data.date) + ',' + y0(data.value) + ')')
         } else {
-          D3.select(data.city.line).classed('subToken--hover', true)
+          D3.select(data.token.line).classed('subToken--hover', true)
           focus.attr('transform', 'translate(' + x(data.date) + ',' + y1(data.value) + ')')
         }
 
         // MOVE line to front
-        data.city.line.parentNode.appendChild(data.city.line)
+        data.token.line.parentNode.appendChild(data.token.line)
 
         let translateX = 80
         let translateY = -10
@@ -301,7 +322,7 @@ export default {
           .html('')
         foreignObject.select('body')
           .append('p')
-          .text(data.city.name)
+          .text(data.token.name)
         foreignObject.select('body')
           .append('p')
           .attr('style', 'color: black')
@@ -316,35 +337,35 @@ export default {
 
       function mouseout (d) {
         d = d.data
-        D3.select(d.city.line).classed('queryToken--hover', false)
-        D3.select(d.city.line).classed('subToken--hover', false)
+        D3.select(d.token.line).classed('queryToken--hover', false)
+        D3.select(d.token.line).classed('subToken--hover', false)
         focus.attr('transform', 'translate(-100,-100)')
       }
 
       function createGraphNode (name, datum) {
-        console.log('timestamps', timestamps)
-        console.log('createGraphNode', name, Object.keys(datum))
+        // console.log('timestamps', timestamps)
+        // console.log('createGraphNode', name, Object.keys(datum))
 
-        var city = {
+        var token = {
           name: name,
           values: null
         }
         // TODO: figure out how to reconcile timestamps and graph node keys
-        city.values = timestamps.map(function (m) {
+        token.values = timestamps.map(function (m) {
           return {
-            city: city,
+            token: token,
             tweetIds: datum[m] !== undefined ? datum[m] : [],
             date: new Date(m * 1000),
             value: datum[m] !== undefined ? datum[m].length : 0
           }
         })
-        console.log('createGraphNode', city.values)
+        // console.log('createGraphNode', token.values)
 
-        return city
+        return token
       }
 
       this.finishDraw()
-      console.log('drawGraph', 'FINISH')
+      // console.log('drawGraph', 'FINISH')
     }
   }
 
