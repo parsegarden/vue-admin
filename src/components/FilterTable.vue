@@ -2,7 +2,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Used with <strong>"{{ getQueryToken }}"</strong> from <strong>{{ getFormattedStart }}</strong> to <strong>{{ getFormattedEnd }}</strong></th>
+        <th>Used with <strong style="color:blue">"{{ getQueryToken }}"</strong> from <strong>{{ getFormattedStart }}</strong> to <strong>{{ getFormattedEnd }}</strong></th>
         <th># Tweets</th>
         <!--<th>Add Filter</th>-->
         <th>Add / Remove</th>
@@ -16,7 +16,7 @@
           <a style="padding:3px;justify-content:initial" href="#"><i class="fa fa-plus" style="font-size:8px" :class="{'red': isActive(row.subToken)}"></i><i class="fa fa-filter" :class="{'red': isActive(row.subToken)}"></i></a>
         </td>-->
         <td class="is-icon">
-          <a @click="addGraph(row.subToken, $event)" style="padding:3px;justify-content:initial" href="#"><i class="fa" style="font-size:8px" :class="{'red': isActive(row.subToken), 'fa-plus': !isActive(row.subToken), 'fa-minus': isActive(row.subToken)}"></i><i class="fa fa-line-chart" :class="{'red': isActive(row.subToken)}"></i></a>
+          <a @click="modifySubTokens(row.subToken, $event)" style="padding:3px;justify-content:initial" href="#"><i class="fa" style="font-size:8px" :class="{'red': isActive(row.subToken), 'fa-plus': !isActive(row.subToken), 'fa-minus': isActive(row.subToken)}"></i><i class="fa fa-line-chart" :class="{'red': isActive(row.subToken)}"></i></a>
         </td>
       </tr>
     </tbody>
@@ -25,7 +25,7 @@
 
 <script>
 import {
-  addGraph
+  modifySubTokens
 } from '../vuex/actions'
 import {
   getSubTokens,
@@ -62,7 +62,7 @@ export default {
       getFormattedEnd
     },
     actions: {
-      addGraph
+      modifySubTokens
     }
   },
 

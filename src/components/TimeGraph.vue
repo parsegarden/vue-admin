@@ -96,7 +96,7 @@ export default {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
     },
     drawGraph () {
-      console.log('INVOKE', 'TimeGraph', 'drawGraph')
+      console.group('INVOKE', 'TimeGraph', 'drawGraph')
 
       let data = this.getQueryResult
       let subTokens = this.getSubTokens
@@ -123,12 +123,14 @@ export default {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
       if (data === null || data['timeGraph'] === null) {
+        console.groupEnd()
         return
       }
 
       let timeGraph = data['timeGraph']
       if (timeGraph == null) {
-        console.log('drawGraph', 'timeGraph', 'EMPTY')
+        console.log('MIDDLE', 'drawGraph', 'timeGraph', 'EMPTY')
+        console.groupEnd()
         return
       }
 
@@ -200,18 +202,32 @@ export default {
       .attr('y', 10)
 
       svg.append('g')
-      .attr('class', 'axis axis--y')
+      .attr('class', 'axis axis--y axis--left')
       .attr('transform', 'translate(' + (-2) + ' , 0)')
+      .style('stroke', 'blue')
       .call(yAxisLeft)
 
       svg.append('g')
-      .attr('class', 'axis axis--y')
+      .attr('class', 'axis axis--y axis--right')
       .attr('transform', 'translate(' + (actualWidth + 4) + ' , 0)')
       .style('stroke', 'red')
       .call(yAxisRight)
 
-      svg.selectAll('.tick > text')
-      .style('font-size', '12')
+      svg.selectAll('.axis--y > .tick > text')
+      .style('font-size', '10')
+      .style('font-family', 'monospace')
+      .style('font-weight', 'lighter')
+      .style('letter-spacing', '1px')
+
+      svg.selectAll('.axis--left > .tick > text')
+      .attr('x', -4)
+
+      svg.selectAll('.axis--right> .tick > text')
+      .attr('x', 4)
+
+      svg.selectAll('.axis--x > .tick > text')
+      .style('font-size', '11')
+      .attr('y', 14)
 
       svg.append('g')
       .attr('class', 'queryToken')
@@ -365,7 +381,7 @@ export default {
       }
 
       this.finishDraw()
-      // console.log('drawGraph', 'FINISH')
+      console.groupEnd()
     }
   }
 
@@ -380,14 +396,18 @@ export default {
   shape-rendering: crispEdges;
 }
 */
+.tick > text {
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-os-font-smoothing: subpixel-antialiased;
+}
 
-.axis--x path, .axis--y path {
+.axis--y path {
   display: none;
 }
 
 .queryToken {
   fill: none;
-  stroke: #aaa;
+  stroke: blue;
   stroke-linejoin: round;
   stroke-linecap: round;
   stroke-width: 1px;
@@ -402,7 +422,7 @@ export default {
 }
 
 .queryToken--hover {
-  stroke: #000;
+  stroke: blue;
   stroke-width: 3px;
 }
 

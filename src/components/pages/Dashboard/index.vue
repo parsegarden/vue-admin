@@ -32,11 +32,11 @@
         <div class="tile is-parent is-vertical is-9">
           <article class="tile is-child box" style="position: relative" v-loading="getLoadStatus" :loading-options="{ queryText: getQueryMessage, rangeText: getRangeMessage }">
             <div class="block is-flex">
-              <h2 class="subtitle"># of tweets found searching for <strong>"{{ getQueryToken }}"</strong> from <strong>{{ getFormattedStart }}</strong> to <strong>{{ getFormattedEnd }}</strong></h2>
+              <h2 class="subtitle"># of tweets found searching for <strong style="color:blue">"{{ getQueryToken }}"</strong> from <strong>{{ getFormattedStart }}</strong> to <strong>{{ getFormattedEnd }}</strong></h2>
             </div>
             <div class="block">
-              <h2 class="subtitle" style="float: left; margin:0 8px; line-height: 30px">+</h2>
-              <a v-for="obj in getSubTokenResults" @click="toggleSubToken(obj.subToken, $event)" class="button is-info is-active" :class="getSubTokens[obj.subToken] ? '' : 'is-outlined'" style="margin: 0 6px 4px 0">{{ obj.subToken }}</a>
+              <a class="button is-active is-danger is-outlined" style="font-size:8px;margin:0 6px 4px 0"><i class="fa fa-plus" style="line-height:30px"></i><i class="fa fa-line-chart" style="font-size:21px;padding-left:6px"></i></a>
+              <a v-for="(idx, obj) in getSubTokens" @click="toggleSubToken(idx, $event)" class="button is-danger is-active" :class="obj ? '' : 'is-outlined'" style="margin: 0 6px 4px 0">{{ idx }}</a>
             </div>
             <div class="block">
               <progress-bar v-if="getPercentage < 88" :type="'success'" :size="'large'" :value="getPercentage" :max="100" :show-label="true"></progress-bar>
@@ -196,8 +196,30 @@ export default {
       return this.getQueryResult.words ? this.getQueryResult.words.filter(function (obj) { return obj.subToken[0] === '@' }) : []
     },
     getTweetCollection () {
+      console.group('Dashboard/index', 'getTweetCollection')
+      let activeSubTokens = []
+      for (var subTokenStr in this.getSubTokens) {
+        if (this.getSubTokens[subTokenStr]) {
+          activeSubTokens.push(subTokenStr)
+        }
+      }
+
+      console.log('INVOKE', 'Dashboard/index', 'getTweetCollection', 'activeSubTokens', activeSubTokens)
+
       let outArr = []
-      if (this.getQueryResult.tweets !== null && this.getQueryResult.tweets !== undefined) {
+
+      if (activeSubTokens.length > 0) {
+        for (let i in activeSubTokens) {
+          console.log('MIDDLE', 'Dashboard/index', 'getTweetCollection', 'activeSubTokens[i]', activeSubTokens[i])
+          if (this.getSubTokenResults[activeSubTokens[i]] !== undefined) {
+            // console.log('MIDDLE', 'Dashboard/index', 'getTweetCollection', 'this.getSubTokenResults[activeSubTokens[i]].tweets', this.getSubTokenResults[activeSubTokens[i]].tweets)
+            let tweetArr = this.getSubTokenResults[activeSubTokens[i]].tweets.map(function (obj) {
+              return obj
+            })
+            outArr = outArr.concat(tweetArr)
+          }
+        }
+      } else if (this.getQueryResult.tweets !== null && this.getQueryResult.tweets !== undefined) {
         outArr = this.getQueryResult.tweets.map(function (obj) {
           return obj
         })
@@ -207,6 +229,13 @@ export default {
         })
         // console.log('getTweetCollection', outArr.length)
       }
+
+      outArr.sort(function (a, b) {
+        return ((b.retweetCount * 3) + b.favoriteCount) - ((a.retweetCount * 3) + a.favoriteCount)
+      })
+
+      console.groupEnd()
+
       return outArr
     },
     getQueryMessage () {
@@ -247,9 +276,12 @@ export default {
       // DISPATCH START_DRAW
       self.performQuery()
     })
+
     this.$store.watch(getSubToken, function (subToken) {
       console.log('WATCH', 'getSubToken', subToken, 'TRIGGER QUERY')
-      self.performQuery()
+      if (self.getSubTokenResults[subToken] === undefined) {
+        self.performQuery()
+      }
     })
 
     if (location.search.trim().length === 0) {

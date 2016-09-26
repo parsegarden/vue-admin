@@ -27,7 +27,7 @@ export const setEnd = function ({ dispatch, state }, end) {
 
 function mergeResults ({ mergedResult, newResult }) {
   
-  console.log('INVOKE', 'mergeResults', mergedResult.query, newResult.query, mergedResult.totalCount, newResult.totalCount)
+  console.group('INVOKE', 'mergeResults', mergedResult.query, newResult.query, mergedResult.totalCount, newResult.totalCount)
 
   // TWEETS
   let outTweets = newResult.tweets
@@ -86,10 +86,7 @@ function mergeResults ({ mergedResult, newResult }) {
     
   let outObj = {}
 
-  outTweets.sort(function (a, b) {
-   return ((b.retweetCount * 3) + b.favoriteCount) - ((a.retweetCount * 3) + a.favoriteCount)
-  })
-  console.log('outWords[0]', outWords[0])
+  //console.log('outWords[0]', outWords[0])
   outWords = outWords.filter(function (val) {
     if (val.tweetCount < totalCount / 4 && 
       Object.keys(val.timestamp).length < Object.keys(outTimeGraph).length / 2 && 
@@ -110,9 +107,16 @@ function mergeResults ({ mergedResult, newResult }) {
   outObj.words = outWords
   outObj.timeGraph = {}
   outObj.timeGraph[newResult.query] = outTimeGraph
-  outObj.totalCount = newResult.totalCount
+  if (mergedResult.totalCount < newResult.totalCount) {
+    console.log('newResult.totalCount', newResult.totalCount) 
+    outObj.totalCount = newResult.totalCount
+  } else {
+    outObj.totalCount = mergedResult.totalCount
+  }
 
   console.log('mergeResults', outObj)
+  console.groupEnd()
+
   return outObj
 
 }
@@ -124,7 +128,7 @@ function urlParam(name) {
 
 function userActionFn({ dispatch, state, type, token, verifier }) {
 
-  console.log('USER_ACTION', type, 'REQUEST')
+  console.group('USER_ACTION', type, 'REQUEST')
 
   let xhr = new XMLHttpRequest()
 
@@ -147,48 +151,57 @@ function userActionFn({ dispatch, state, type, token, verifier }) {
     xhr.send(queryStr)
   }
 
+  console.groupEnd()
+
 }
 
 function queryFn ({ dispatch, state, lastKey }) {
 
-  //console.log('QUERY', 'REQUEST', lastKey)
+  console.group('QUERY', 'REQUEST', lastKey)
 
   let xhr = new XMLHttpRequest()
 
   xhr.open('POST', 'https://sc901zcfbj.execute-api.us-west-2.amazonaws.com/dev/PerformActiveQuery')
   xhr.onload = function () {
-    let parsed = JSON.parse(xhr.responseText)
-    console.log('QUERY', 'RESPONSE', parsed)
-    console.log('QUERY', 'RESPONSE', 'count', parsed.count,'timeGraph.length', Object.keys(parsed.timeGraph[state.queryToken]).length)
+    let parsedResp = JSON.parse(xhr.responseText)
+    console.log('QUERY', 'RESPONSE', parsedResp)
 
-    if (parsed.lastEvaluatedKey) {
-      let newLastkey = parsed.lastEvaluatedKey
-      console.log('QUERY', 'RESPONSE', 'lastEvaluatedKey', newLastkey)
+    if (parsedResp.lastEvaluatedKey) {
+      let newLastkey = parsedResp.lastEvaluatedKey
+      console.log('NEXT QUERY', 'RESPONSE', 'lastEvaluatedKey', newLastkey)
       queryFn({ dispatch, state, lastKey: newLastkey })
     }
 
-    if (parsed.subToken.length > 0) {
-      console.log('QUERY', 'RESPONSE', 'parsed.tweets.length', parsed.tweets.length)
-      dispatch('SET_SUB_TOKEN_RESULT', parsed)
-      dispatch('INCREMENT')
-    } else {
-      let outMergedResults = mergeResults({ mergedResult: state.queryResult, newResult: parsed })
+    console.log(parsedResp.queryType, 'RESPONSE', 'count', parsedResp.count)
+
+    switch (parsedResp.queryType) {
+    case 'FULL_QUERY':
+      console.log('FULL_QUERY', 'RESPONSE')
+      let outMergedResults = mergeResults({ mergedResult: state.queryResult, newResult: parsedResp })
       dispatch('SET_QUERY_RESULT', outMergedResults)
       dispatch('SET_LAST_TIME_KEY', outMergedResults.lastTimeKey)
-      dispatch('INCREMENT')
+      break;
+    case 'SUB_TOKEN_QUERY':
+      console.log('SUB_TOKEN_QUERY', 'RESPONSE')
+      dispatch('SET_SUB_TOKEN_RESULT', parsedResp)
+      break;
     }
+    dispatch('INCREMENT')
   }
 
   xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
 
-  let obj = { query: state.queryToken, start: state.start, end: state.end, lastEvaluatedKey: lastKey }
+  let obj = { queryToken: state.queryToken, start: state.start, end: state.end, lastEvaluatedKey: lastKey, queryType: 'FULL_QUERY' }
   if (state.subToken.length > 0) {
     obj.subToken = state.subToken
+    obj.queryType = 'SUB_TOKEN_QUERY'
   }
   console.log('QUERY', 'REQUEST', obj)
   let queryStr = JSON.stringify(obj)
 
   xhr.send(queryStr)
+
+  console.groupEnd()
 
 }
 
@@ -233,9 +246,15 @@ export const updateQuery = function ({ dispatch, state }, queryStr) {
 
 export const addFilter = function ({ dispatch, state }, subToken, ev) {
 }
-export const addGraph = function ({ dispatch, state }, subToken, ev) {
+
+export const modifySubTokens = function ({ dispatch, state }, subToken, ev) {
   ev.preventDefault()
-  dispatch('CONFIRM_SUB_TOKEN_FILTER', subToken)
+  console.log('INVOKE', 'modifySubTokens', 'subToken', subToken, 'subTokens[subToken]', state.subTokens[subToken])
+  if (state.subTokens[subToken] !== undefined) {
+    dispatch('REMOVE_SUB_TOKEN_FILTER', subToken)
+  } else {
+    dispatch('CONFIRM_SUB_TOKEN_FILTER', subToken)
+  }
 }
 
 export const toggleSubToken = function({ dispatch, state }, subToken, ev) {

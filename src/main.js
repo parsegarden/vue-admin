@@ -5,20 +5,17 @@ init(config)
 
 import Vue from 'vue'
 import Router from 'vue-router'
+Vue.use(Router)
 import Resource from 'vue-resource'
+Vue.use(Resource)
 import NProgress from 'nprogress'
 import './transitions'
-
-Vue.use(Router)
-Vue.use(Resource)
 
 import Truncate from 'vue-truncate'
 Vue.use(Truncate)
 
 import { linky } from './lib/jquery.linky'
 import { twemoji } from './lib/twemoji'
-import moment from 'moment'
-
 var tweetFilter = function (text) {
   // console.log('tweetify', text)
   text = linky(text, {
@@ -31,6 +28,7 @@ var tweetFilter = function (text) {
 };
 Vue.filter('tweetify', tweetFilter)
 
+import moment from 'moment'
 var timeFilter = function (timestamp) {
   return moment(timestamp, 'X').fromNow();
 }

@@ -12,7 +12,7 @@ const state = {
   menu, // SHORT for 'menu: menu
   queryToken: 'hillary',
   queryResult: {
-    totalCount: 33000000
+    totalCount: 35000000
   },
   start: now - 100000,
   end: now,
@@ -235,6 +235,9 @@ const mutations = {
 
   CONFIRM_QUERY (state, queryStr) {
     console.log('CONFIRM_QUERY', queryStr)
+    state.subToken = ''
+    state.subTokens = {}
+    state.getSubTokenResults = {}
     state.queryToken = queryStr
   },
 
@@ -276,6 +279,10 @@ const mutations = {
     console.log('STATE.lastTimeKey', state.lastTimeKey)
   },
 
+  REMOVE_SUB_TOKEN_FILTER (state, subToken) {
+    Vue.delete(state.subTokens, subToken)
+  },
+
   CONFIRM_SUB_TOKEN_FILTER (state, subToken) {
     // console.log('INVOKE', 'CONFIRM_SUB_TOKEN_FILTER', subToken)
     state.subToken = subToken
@@ -288,6 +295,7 @@ const mutations = {
   },
 
   SET_SUB_TOKEN_RESULT (state, result) {
+    console.log('INVOKE', 'SET_SUB_TOKEN_RESULT', result)
     Vue.set(state.subTokenResults, result.subToken, result)
   }
   

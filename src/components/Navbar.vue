@@ -31,7 +31,7 @@
                 <mz-datepicker format="M/d/yy" :start-time="getMilliStart" :end-time="getMilliEnd" range en confirm :on-confirm="confirmTimeRange"></mz-datepicker> 
               </div>
               <div class="control has-addons">
-                <input class="input" type="text" placeholder="Track a word" value="hillary" v-model='queryStr'>
+                <input class="input" type="text" placeholder="Track a word" value="hillary" v-model='queryStr' @keyup.enter='triggerQuery' style="color:blue">
                 <a id="searchBtn" class="button is-medium is-info" @click='triggerQuery'>Track a Word</a>
               </div>
               <!-- move to login nag modal
