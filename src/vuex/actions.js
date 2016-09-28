@@ -107,6 +107,8 @@ function mergeResults ({ mergedResult, newResult }) {
   outObj.words = outWords
   outObj.timeGraph = {}
   outObj.timeGraph[newResult.query] = outTimeGraph
+  outObj.timeGraphTweets = {}
+
   if (mergedResult.totalCount < newResult.totalCount) {
     console.log('newResult.totalCount', newResult.totalCount) 
     outObj.totalCount = newResult.totalCount
@@ -175,24 +177,29 @@ function queryFn ({ dispatch, state, lastKey }) {
     console.log(parsedResp.queryType, 'RESPONSE', 'count', parsedResp.count)
 
     switch (parsedResp.queryType) {
-    case 'FULL_QUERY':
-      console.log('FULL_QUERY', 'RESPONSE')
-      let outMergedResults = mergeResults({ mergedResult: state.queryResult, newResult: parsedResp })
-      dispatch('SET_QUERY_RESULT', outMergedResults)
-      dispatch('SET_LAST_TIME_KEY', outMergedResults.lastTimeKey)
-      break;
-    case 'SUB_TOKEN_QUERY':
-      console.log('SUB_TOKEN_QUERY', 'RESPONSE')
-      dispatch('SET_SUB_TOKEN_RESULT', parsedResp)
-      break;
+      case 'FULL_QUERY':
+        let outMergedResults = mergeResults({ mergedResult: state.queryResult, newResult: parsedResp })
+        dispatch('SET_QUERY_RESULT', outMergedResults)
+        dispatch('SET_LAST_TIME_KEY', outMergedResults.lastTimeKey)
+        break;
+      case 'SUB_TOKEN_QUERY':
+        dispatch('SET_SUB_TOKEN_RESULT', parsedResp)
+        break;
+      case 'TIMESTAMP_QUERY':
+        dispatch('SET_SELECTED_TIMESTAMP_RESULT', parsedResp)
+        break;
     }
+
     dispatch('INCREMENT')
   }
 
   xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
 
   let obj = { queryToken: state.queryToken, start: state.start, end: state.end, lastEvaluatedKey: lastKey, queryType: 'FULL_QUERY' }
-  if (state.subToken.length > 0) {
+  if (state.selectedTimestamp > 1000000000) {
+    obj.selectedTimestamp = state.selectedTimestamp
+    obj.queryType = 'TIMESTAMP_QUERY'
+  } else if (state.subToken.length > 0) {
     obj.subToken = state.subToken
     obj.queryType = 'SUB_TOKEN_QUERY'
   }
@@ -262,4 +269,14 @@ export const toggleSubToken = function({ dispatch, state }, subToken, ev) {
   ev.preventDefault()
   dispatch('CONFIRM_SUB_TOKEN_TOGGLE', subToken)
   dispatch('INCREMENT')
+}
+
+export const confirmSingleTimeSelect = function({ dispatch, state }, selectedTimestamp) {
+  console.log('INVOKE', 'confirmTimeSelect', typeof(selectedTimestamp))
+  dispatch('CONFIRM_SELECTED_TIMESTAMP_FILTER', selectedTimestamp)
+}
+
+export const toggleTimestamp = function({ dispatch, state }, timestamp) {
+  console.log('INVOKE', 'toggleSingleTimeSelect', timestamp)
+  dispatch('CONFIRM_TIMESTAMP_TOGGLE', timestamp)
 }

@@ -4,10 +4,7 @@
     <article class="tile is-child box">
       <p class="title is-5" style="color: #69707a; font-weight: normal;">Popular Tweets with <strong style="color:blue">"{{ getQueryToken }}"</strong> from <strong style="color: black">{{ getFormattedStart }}</strong> to <strong style="color: black">{{ getFormattedEnd }}</strong></p>
 
-      <div class="block">
-        <a class="button is-active is-danger is-outlined" style="font-size:8px;margin:0 6px 4px 0"><i class="fa fa-plus" style="line-height:30px"></i><i class="fa fa-line-chart" style="font-size:21px;padding-left:6px"></i></a>
-        <a v-for="(idx, obj) in getSubTokens" @click="toggleSubToken(idx, $event)" class="button is-danger is-active" :class="obj ? '' : 'is-outlined'" style="margin: 0 6px 4px 0">{{ idx }}</a>
-      </div>
+      <filter-bar></filter-bar>
 
       <div class="box" style="margin-bottom:10px;padding:17px" v-for="row in collection">
         <article class="media">
@@ -59,20 +56,18 @@ import {
   getQueryToken,
   getFormattedStart,
   getFormattedEnd,
-  getSubTokenResults,
-  getSubTokens
+  getSubTokenResults
 } from '../vuex/getters'
-import {
-  toggleSubToken
-} from '../vuex/actions'
 
 import { Tabs, TabPane } from 'vue-bulma-tabs'
+import FilterBar from './FilterBar'
 
 export default {
 
   components: {
     Tabs,
-    TabPane
+    TabPane,
+    FilterBar
   },
 
   props: {
@@ -91,11 +86,9 @@ export default {
       getFormattedStart,
       getFormattedEnd,
       getQueryToken,
-      getSubTokenResults,
-      getSubTokens
+      getSubTokenResults
     },
     actions: {
-      toggleSubToken
     }
   }
 

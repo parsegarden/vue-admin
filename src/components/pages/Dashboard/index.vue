@@ -4,7 +4,7 @@
       
       <div class="tile is-ancestor">
         <div class="tile is-parent is-vertical">
-          <article class="tile is-child box light">
+          <article class="tile is-child box light" style="height:60px">
             <p class="subtitle white is-5" style="padding: 0;">New to Parsegarden?</p>
             <div class="block">
               <p class="subtitle is-5" style="padding: 0;"><strong class="white">Sign up with Twitter</strong></p>
@@ -34,14 +34,15 @@
             <div class="block is-flex">
               <h2 class="subtitle"># of tweets found searching for <strong style="color:blue">"{{ getQueryToken }}"</strong> from <strong>{{ getFormattedStart }}</strong> to <strong>{{ getFormattedEnd }}</strong></h2>
             </div>
-            <div class="block">
-              <a class="button is-active is-danger is-outlined" style="font-size:8px;margin:0 6px 4px 0"><i class="fa fa-plus" style="line-height:30px"></i><i class="fa fa-line-chart" style="font-size:21px;padding-left:6px"></i></a>
-              <a v-for="(idx, obj) in getSubTokens" @click="toggleSubToken(idx, $event)" class="button is-danger is-active" :class="obj ? '' : 'is-outlined'" style="margin: 0 6px 4px 0">{{ idx }}</a>
-            </div>
+
+            <filter-bar></filter-bar>
+
             <div class="block">
               <progress-bar v-if="getPercentage < 88" :type="'success'" :size="'large'" :value="getPercentage" :max="100" :show-label="true"></progress-bar>
             </div>
+
             <time-graph></time-graph>
+
           </article>
         </div>
       </div>
@@ -81,8 +82,7 @@ import {
   setEnd,
   clearQuery,
   performRequestTokenAction,
-  performAuthTokenAction,
-  toggleSubToken
+  performAuthTokenAction
 } from '../../../vuex/actions'
 
 import {
@@ -93,16 +93,17 @@ import {
   getLoadStatus,
   getLastTimeKey,
   getSubToken,
-  getSubTokens,
   getSubTokenResults,
   getFormattedStart,
   getFormattedEnd,
-  getStopList
+  getStopList,
+  getSelectedTimestamp
 } from '../../../vuex/getters'
 
 import TimeGraph from 'components/TimeGraph'
 import FilterTable from 'components/FilterTable'
 import TweetTable from 'components/TweetTable'
+import FilterBar from 'components/FilterBar'
 import loading from '../../../lib/vue-loading'
 import ProgressBar from '../../../lib/ProgressBar'
 
@@ -141,7 +142,8 @@ export default {
     TweetTable,
     Tabs,
     TabPane,
-    ProgressBar
+    ProgressBar,
+    FilterBar
   },
 
   vuex: {
@@ -156,7 +158,7 @@ export default {
       getFormattedEnd,
       getStopList,
       getSubTokenResults,
-      getSubTokens
+      getSelectedTimestamp
     },
     actions: {
       performQuery,
@@ -164,8 +166,7 @@ export default {
       setEnd,
       clearQuery,
       performRequestTokenAction,
-      performAuthTokenAction,
-      toggleSubToken
+      performAuthTokenAction
     }
   },
 
@@ -208,7 +209,16 @@ export default {
 
       let outArr = []
 
-      if (activeSubTokens.length > 0) {
+      let selectedTimestamp = this.getSelectedTimestamp
+      let selectedTimestampResult = this.getQueryResult.timeGraphTweets
+      if (selectedTimestamp > 1000000000 &&
+        this.getQueryResult.timeGraphTweets[this.getQueryToken] !== undefined &&
+        this.getQueryResult.timeGraphTweets[this.getQueryToken][selectedTimestamp] !== undefined) {
+        console.log('selectedTimestampResult', selectedTimestampResult)
+        outArr = this.getQueryResult.timeGraphTweets[this.getQueryToken][selectedTimestamp].tweets.map(function (obj) {
+          return obj
+        })
+      } else if (activeSubTokens.length > 0) {
         for (let i in activeSubTokens) {
           console.log('MIDDLE', 'Dashboard/index', 'getTweetCollection', 'activeSubTokens[i]', activeSubTokens[i])
           if (this.getSubTokenResults[activeSubTokens[i]] !== undefined) {
@@ -278,10 +288,15 @@ export default {
     })
 
     this.$store.watch(getSubToken, function (subToken) {
-      console.log('WATCH', 'getSubToken', subToken, 'TRIGGER QUERY')
+      console.log('WATCH', 'getSubToken', subToken)
       if (self.getSubTokenResults[subToken] === undefined) {
         self.performQuery()
       }
+    })
+
+    this.$store.watch(getSelectedTimestamp, function (timestamp) {
+      console.log('WATCH', 'getSelectedTimestamp', timestamp)
+      self.performQuery()
     })
 
     if (location.search.trim().length === 0) {

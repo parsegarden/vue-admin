@@ -2,6 +2,9 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import config from '../config'
+import stopList from './stopList'
+
+console.log('vuex/store.js')
 
 const { menu } = config
 
@@ -12,7 +15,8 @@ const state = {
   menu, // SHORT for 'menu: menu
   queryToken: 'hillary',
   queryResult: {
-    totalCount: 35000000
+    totalCount: 35000000,
+    timeGraphTweets: {}
   },
   start: now - 100000,
   end: now,
@@ -23,202 +27,9 @@ const state = {
   subToken: '',
   subTokenResults: {},
   subTokens: {},
-  stopList: [
-    'via',
-    'that',
-    'this',
-    'will',
-    'with',
-    'about',
-    'from',
-    'have',
-    'like',
-    'just',
-    'what',
-    'when',
-    'they',
-    'says',
-    'dont',
-    'your',
-    'only',
-    'would',
-    'said',
-    'cant',
-    'very',
-    'them',
-    'after',
-    'than',
-    'does',
-    'into',
-    'their',
-    'shes',
-    'there',
-    'wont',
-    'isnt',
-    'doesnt',
-    'couldnt',
-    'been',
-    'whats',
-    'sure',
-    'then',
-    'didnt',
-    'whos',
-    'were',
-    'retweet',
-    'theyre',
-    'come',
-    'while',
-    'gets',
-    'because',
-    'thats',
-    'could',
-    'being',
-    'watch',
-    'more',
-    'even',
-    'should',
-    'still',
-    'other',
-    'herself',
-    'against',
-    'think',
-    'want',
-    'give',
-    'took',
-    'over',
-    'sent',
-    'either',
-    'talking',
-    'asked',
-    'totally',
-    'part',
-    'uses',
-    'former',
-    'another',
-    'know',
-    'again',
-    'make',
-    'really',
-    'saying',
-    'thing',
-    'must',
-    'many',
-    'these',
-    'here',
-    'made',
-    'another',
-    'again',
-    'make',
-    'read',
-    'take',
-    'well',
-    'great',
-    'back',
-    'going',
-    'next',
-    'enough',
-    'wants',
-    'ever',
-    'some',
-    'knows',
-    'asks',
-    'good',
-    'probably',
-    'tell',
-    'around',
-    'already',
-    'away',
-    'between',
-    'agree',
-    'theres',
-    'doing',
-    'calling',
-    'held',
-    'people',
-    'news',
-    'under',
-    'mean',
-    'show',
-    'anyone',
-    'youre',
-    'where',
-    'much',
-    'down',
-    'most',
-    'getting',
-    'least',
-    'yeah',
-    'quite',
-    'look',
-    'last',
-    'please',
-    'those',
-    'told',
-    'better',
-    'biggest',
-    'also',
-    'lets',
-    'since',
-    'which',
-    'himself',
-    'before',
-    'behind',
-    'want',
-    'showed',
-    'until',
-    'everyone',
-    'meet',
-    'exactly',
-    'wanted',
-    'rather',
-    'several',
-    'amid',
-    'thinks',
-    'prefer',
-    'describes',
-    'went',
-    'currently',
-    'bring',
-    'actually',
-    'anybody',
-    'hasnt',
-    'best',
-    'needs',
-    'every',
-    'used',
-    'help',
-    'need',
-    'believe',
-    'asking',
-    'called',
-    'making',
-    'less',
-    'cannot',
-    'same',
-    'things',
-    'soon',
-    'makes',
-    'heres',
-    'during',
-    'latest',
-    'gave',
-    'year',
-    'years',
-    'call',
-    'calls',
-    'gave',
-    'shows',
-    'right',
-    'wasnt',
-    'arent',
-    'havent',
-    'weve',
-    'yours',
-    'mins',
-    'couldve',
-    'wouldnt',
-    'feat'
-  ]
+  selectedTimestamp: 0,
+  timestamps: {},
+  stopList
 }
 
 const mutations = {
@@ -237,8 +48,9 @@ const mutations = {
     console.log('CONFIRM_QUERY', queryStr)
     state.subToken = ''
     state.subTokens = {}
-    state.getSubTokenResults = {}
+    state.subTokenResults = {}
     state.queryToken = queryStr
+    state.selectedTimestamp = 0
   },
 
   CLEAR_QUERY_RESULT (state) {
@@ -297,6 +109,26 @@ const mutations = {
   SET_SUB_TOKEN_RESULT (state, result) {
     console.log('INVOKE', 'SET_SUB_TOKEN_RESULT', result)
     Vue.set(state.subTokenResults, result.subToken, result)
+  },
+
+  CONFIRM_SELECTED_TIMESTAMP_FILTER (state, selectedTimestamp) {
+    console.log('INVOKE', 'CONFIRM_SINGLE_TIME_SELECT', selectedTimestamp)
+    state.selectedTimestamp = selectedTimestamp
+    Vue.set(state.timestamps, selectedTimestamp, true)
+  },
+
+  CONFIRM_TIMESTAMP_TOGGLE (state, timestamp) {
+    Vue.set(state.timestamps, timestamp, !state.timestamps[timestamp])
+    console.log('INVOKE', 'CONFIRM_TIMESTAMP_TOGGLE', state.timestamps)
+  },
+
+  SET_SELECTED_TIMESTAMP_RESULT (state, result) {
+    console.log('INVOKE', 'SET_SELECTED_TIMESTAMP_RESULT', result.query, result.selectedTimestamp, state.queryResult.timeGraphTweets)
+    if (state.queryResult.timeGraphTweets[result.query] === undefined) {
+      Vue.set(state.queryResult.timeGraphTweets, result.query, {})
+    }
+    Vue.set(state.queryResult.timeGraphTweets[result.query], result.selectedTimestamp, result)
+    console.log('INVOKE', 'SET_SELECTED_TIMESTAMP_RESULT', state.queryResult)
   }
   
 }

@@ -14,7 +14,8 @@ import {
 } from '../vuex/getters'
 import {
   incrementDrawCount,
-  finishDraw
+  finishDraw,
+  confirmSingleTimeSelect
 } from '../vuex/actions'
 
 import * as D3 from 'd3'
@@ -42,7 +43,8 @@ export default {
   vuex: {
     actions: {
       incrementDrawCount,
-      finishDraw
+      finishDraw,
+      confirmSingleTimeSelect
     },
     getters: {
       getQueryResult,
@@ -299,9 +301,10 @@ export default {
       // console.log(voronoiGroup.selectAll('.voronoi path').size())
 
       function click (d) {
-        console.log('GRAPH', 'click =>', d.tweetIds)
         // performTweetIdsSearch(d.tweetIds)
-        self.modalTitle = moment(d.date).format('LLL')
+        self.modalTitle = moment(d.data.date).format('LLL')
+        console.log('GRAPH', 'click', 'token', d.data.token, 'date', self.modalTitle, 'count', d.data.value, 'tweetIds', d.data.tweetIds)
+        self.confirmSingleTimeSelect(d.data.timestamp)
       }
 
       function mouseover (d) {
@@ -372,6 +375,7 @@ export default {
             token: token,
             tweetIds: datum[m] !== undefined ? datum[m] : [],
             date: new Date(m * 1000),
+            timestamp: parseInt(m),
             value: datum[m] !== undefined ? datum[m].length : 0
           }
         })
