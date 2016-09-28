@@ -259,6 +259,7 @@ export const modifySubTokens = function ({ dispatch, state }, subToken, ev) {
   console.log('INVOKE', 'modifySubTokens', 'subToken', subToken, 'subTokens[subToken]', state.subTokens[subToken])
   if (state.subTokens[subToken] !== undefined) {
     dispatch('REMOVE_SUB_TOKEN_FILTER', subToken)
+    dispatch('INCREMENT')
   } else {
     dispatch('CONFIRM_SUB_TOKEN_FILTER', subToken)
   }
@@ -271,7 +272,7 @@ export const toggleSubToken = function({ dispatch, state }, subToken, ev) {
   dispatch('INCREMENT')
 }
 
-export const confirmSingleTimeSelect = function({ dispatch, state }, selectedTimestamp) {
+export const confirmSelectedTimestamp = function({ dispatch, state }, selectedTimestamp) {
   console.log('INVOKE', 'confirmTimeSelect', typeof(selectedTimestamp))
   dispatch('CONFIRM_SELECTED_TIMESTAMP_FILTER', selectedTimestamp)
 }

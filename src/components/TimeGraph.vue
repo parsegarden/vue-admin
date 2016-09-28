@@ -15,7 +15,7 @@ import {
 import {
   incrementDrawCount,
   finishDraw,
-  confirmSingleTimeSelect
+  confirmSelectedTimestamp
 } from '../vuex/actions'
 
 import * as D3 from 'd3'
@@ -44,7 +44,7 @@ export default {
     actions: {
       incrementDrawCount,
       finishDraw,
-      confirmSingleTimeSelect
+      confirmSelectedTimestamp
     },
     getters: {
       getQueryResult,
@@ -148,7 +148,11 @@ export default {
         graphs.push(createGraphNode(i, timeGraph[i]))
 
         for (let j in subTokenData) {
-          // console.log('drawGraph', 'subToken', j)
+          console.log('drawGraph', 'subToken', j)
+          let subToken = subTokenData[j]
+          if (subToken === undefined) {
+            console.log('drawGraph', 'subTokenTimeGraph', 'EMPTY')
+          }
           let subTokenTimeGraph = subTokenData[j]['timeGraph']
           if (subTokenTimeGraph == null) {
             console.log('drawGraph', 'subTokenTimeGraph', 'EMPTY')
@@ -304,7 +308,7 @@ export default {
         // performTweetIdsSearch(d.tweetIds)
         self.modalTitle = moment(d.data.date).format('LLL')
         console.log('GRAPH', 'click', 'token', d.data.token, 'date', self.modalTitle, 'count', d.data.value, 'tweetIds', d.data.tweetIds)
-        self.confirmSingleTimeSelect(d.data.timestamp)
+        self.confirmSelectedTimestamp(d.data.timestamp)
       }
 
       function mouseover (d) {

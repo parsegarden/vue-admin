@@ -97,6 +97,7 @@ import {
   getFormattedStart,
   getFormattedEnd,
   getStopList,
+  getSubTokens,
   getSelectedTimestamp
 } from '../../../vuex/getters'
 
@@ -158,6 +159,7 @@ export default {
       getFormattedEnd,
       getStopList,
       getSubTokenResults,
+      getSubTokens,
       getSelectedTimestamp
     },
     actions: {
